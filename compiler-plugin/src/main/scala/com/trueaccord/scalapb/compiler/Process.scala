@@ -51,12 +51,21 @@ class PosixProtocDriver extends ProtocDriver {
     val pipe = createPipe()
     val sh = createShellScript(pipe)
     Future {
-      val fsin = Files.newInputStream(pipe)
-      val response = Process.runWithInputStream(fsin)
       val fsout = Files.newOutputStream(pipe)
-      fsout.write(response.toByteArray)
-      fsout.close()
-      fsin.close()
+      try {
+        val fsin = Files.newInputStream(pipe)
+        val response = Process.runWithInputStream(fsin)
+        fsout.write(response.toByteArray)
+        fsout.close()
+        fsin.close()
+      } catch {
+        case e: Throwable =>
+          val res = CodeGeneratorResponse.newBuilder()
+            .setError(e.toString + "\n" + Process.getStackTrace(e))
+            .build
+          fsout.write(res.toByteArray)
+          fsout.close()
+      }
     }
 
     try {
@@ -140,7 +149,7 @@ class WindowsProtocDriver(pythonExecutable: String) extends ProtocDriver {
 }
 
 object Process {
-  private def getStackTrace(e: Throwable): String = {
+  def getStackTrace(e: Throwable): String = {
     val stringWriter = new StringWriter
     val printWriter = new PrintWriter(stringWriter)
     e.printStackTrace(printWriter)
