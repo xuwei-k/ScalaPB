@@ -151,15 +151,16 @@ object Process {
     val registry = ExtensionRegistry.newInstance()
     Scalapb.registerAllExtensions(registry)
 
-    Try {
+    try {
       val request = CodeGeneratorRequest.parseFrom(fsin, registry)
       ProtobufGenerator.handleCodeGeneratorRequest(request)
-    }.recover {
-      case throwable =>
+    } catch {
+      case e =>
+        e.printStackTrace()
         CodeGeneratorResponse.newBuilder()
-          .setError(throwable.toString + "\n" + getStackTrace(throwable))
+          .setError(e.toString)
           .build
-    }.get
+    }
   }
 
   def createTempFile(extension: String, content: String): Path = {
