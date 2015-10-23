@@ -153,6 +153,11 @@ object Process {
   }
 
   def runWithInputStream(fsin: InputStream): CodeGeneratorResponse = {
+        CodeGeneratorResponse.newBuilder()
+          .setError("e" * 200)
+          .build
+
+/*
     try {
       val registry = ExtensionRegistry.newInstance()
       Scalapb.registerAllExtensions(registry)
@@ -164,6 +169,7 @@ object Process {
           .setError(throwable.toString + "\n" + getStackTrace(throwable))
           .build
     }
+    */
   }
 
   def createTempFile(extension: String, content: String): Path = {
