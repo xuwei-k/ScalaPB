@@ -148,18 +148,17 @@ object Process {
   }
 
   def runWithInputStream(fsin: InputStream): CodeGeneratorResponse = {
-    val registry = ExtensionRegistry.newInstance()
-    Scalapb.registerAllExtensions(registry)
-
-    Try {
+    try {
+      val registry = ExtensionRegistry.newInstance()
+      Scalapb.registerAllExtensions(registry)
       val request = CodeGeneratorRequest.parseFrom(fsin, registry)
       ProtobufGenerator.handleCodeGeneratorRequest(request)
-    }.recover {
-      case throwable =>
+    } catch {
+      case throwable: Throwable =>
         CodeGeneratorResponse.newBuilder()
           .setError(throwable.toString + "\n" + getStackTrace(throwable))
           .build
-    }.get
+    }
   }
 
   def createTempFile(extension: String, content: String): Path = {
