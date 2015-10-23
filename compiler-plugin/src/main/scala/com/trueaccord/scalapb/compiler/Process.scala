@@ -69,13 +69,8 @@ class PosixProtocDriver extends ProtocDriver {
       }
     }
 
-    try {
-      val args = Seq(s"--plugin=protoc-gen-scala=$sh") ++ params
-      runner(args)
-    } finally {
-      Files.delete(pipe)
-      Files.delete(sh)
-    }
+    val args = Seq(s"--plugin=protoc-gen-scala=$sh") ++ params
+    runner(args)
   }
 
   private def createPipe(): Path = {
