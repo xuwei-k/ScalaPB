@@ -52,12 +52,11 @@ class PosixProtocDriver extends ProtocDriver {
     val sh = createShellScript(pipe)
     Future {
       val fsout = Files.newOutputStream(pipe)
+      val fsin = Files.newInputStream(pipe)
       try {
-        val fsin = Files.newInputStream(pipe)
         val response = Process.runWithInputStream(fsin)
         fsout.write(response.toByteArray)
         fsout.close()
-        fsin.close()
       } catch {
         case e: Throwable =>
           val res = CodeGeneratorResponse.newBuilder()
@@ -65,6 +64,8 @@ class PosixProtocDriver extends ProtocDriver {
             .build
           fsout.write(res.toByteArray)
           fsout.close()
+      } finally {
+        fsin.close()
       }
     }
 
