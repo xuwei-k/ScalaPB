@@ -3,7 +3,7 @@ package com.trueaccord.scalapb.compiler
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scala.collection.JavaConverters._
 
-final class ServicePrinter(service: ServiceDescriptor) {
+final class ServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L564-L593]]
    */
@@ -68,13 +68,13 @@ s"""  def newScalaServer(channel: io.grpc.Channel): $serverClassName =
 
   val serverClass = {
     val methods = service.getMethods.asScala.map{ method =>
-s"""    def ${method.getName}(request: ${method.getInputType.getFullName}): scala.concurrent.Future[${method.getOutputType.getFullName}]"""
+s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
     }.mkString("\n")
 
     val executionContext = "executionContext"
 
     val javaMethods = service.getMethods.asScala.map{ method =>
-s"""        override def ${method.getName}(request: ${method.getInputType.getFullName}, observer: StreamObserver[${method.getOutputType.getFullName}]): Unit = {
+s"""        override def ${method.getName}(request: ${method.getInputType.scalaTypeName}, observer: io.grpc.stub.StreamObserver[${method.getOutputType.scalaTypeName}]): Unit = {
           self.${method.getName}(request).onComplete {
             case scala.util.Success(value) =>
               observer.onNext(value)
@@ -87,7 +87,7 @@ s"""        override def ${method.getName}(request: ${method.getInputType.getFul
     }.mkString("\n")
 
     val build = s"""    final def build($executionContext: scala.concurrent.ExecutionContext): io.grpc.ServerServiceDefinition = {
-      val s = new ${javaServiceClassName} {
+      val s = new ${javaServiceFull}.${service.getName} {
 $javaMethods
       }
       ${javaServiceFull}.bindService(s)
@@ -102,7 +102,7 @@ $build
 
   val clientClass = {
     val signature = { method: MethodDescriptor =>
-      s"""    def ${method.getName}(request: ${method.getInputType.getFullName}): scala.concurrent.Future[${method.getOutputType.getFullName}]"""
+      s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
     }
 
     val methods = service.getMethods.asScala.map(signature)
@@ -111,7 +111,7 @@ $build
 
     val methodsImpl = service.getMethods.asScala.map{ method =>
       signature(method) + s""" = {
-      $underlying.${method.getName}(request)
+      $underlying.${method.getName}(${method.getInputType.scalaTypeName}.toJavaProto(request))
     }"""
     }
 
@@ -138,11 +138,10 @@ s"""$serviceJavaPackage
 
 $imports
 
-@javax.annotation.Generated("by ScalaPB")
+@javax.annotation.Generated(Array("by ScalaPB"))
 object $serviceClassName {
   val SERVICE_NAME = "${service.getFullName}"
 
-$stubMethods
 
 $serverClass
 
