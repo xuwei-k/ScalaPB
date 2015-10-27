@@ -27,11 +27,15 @@ class Test extends FunSpec {
 
           package $packageName;
 
-          message Req {}
-          message Res {}
+          message Req1 {}
+          message Res1 {}
+
+          message Req2 {}
+          message Res2 {}
 
           service Service1 {
-            rpc hello (Req) returns (Res) {}
+            rpc hello (Req1) returns (Res1) {}
+            rpc foo (Req2) returns (Res2) {}
           }
           """
           Files.write(inputProto.toPath, java.util.Collections.singletonList(input))
@@ -43,9 +47,9 @@ class Test extends FunSpec {
           ProtocDriverFactory.create().buildRunner { a => Protoc.runProtoc("-v300" +: a.toArray) }(args)
           println(outDir.listFiles().length)
           (outDir ** "*.scala").get.foreach{ f =>
-            println(f)
+//            println(f)
 //            sbt.IO.readLines(f).foreach(println)
-            println
+ //           println
           }
         }
       }

@@ -153,9 +153,6 @@ object Process {
 
     Try {
       val request = CodeGeneratorRequest.parseFrom(fsin, registry)
-      println("\n" * 5)
-      println(request)
-      println("\n" * 5)
       ProtobufGenerator.handleCodeGeneratorRequest(request)
     }.recover {
       case throwable =>

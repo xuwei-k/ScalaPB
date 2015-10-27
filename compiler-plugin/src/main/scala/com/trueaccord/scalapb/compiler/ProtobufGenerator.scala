@@ -945,6 +945,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   }
 
   def generateScalaFilesForFileDescriptor(file: FileDescriptor): Seq[CodeGeneratorResponse.File] = {
+    {
+      println("services size " + file.getServices.size)
+      file.getServices.foreach{ s =>
+        println(new ServicePrinter(s).printService)
+      }
+    }
+
     val enumFiles = for {
       enum <- file.getEnumTypes
     } yield {
