@@ -945,11 +945,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   }
 
   def generateScalaFilesForFileDescriptor(file: FileDescriptor): Seq[CodeGeneratorResponse.File] = {
-    {
-      println("services size " + file.getServices.size)
-      file.getServices.foreach{ s =>
-        println(new ServicePrinter(s).printService)
-      }
+    val serviceFiles = file.getServices.map { service =>
+      val p = new ServicePrinter(service)
+      println(p.printService)
+      val b = CodeGeneratorResponse.File.newBuilder()
+      b.setName(file.scalaPackageName.replace('.', '/') + "/" + service.getName + ".scala")
+      b.setContent(p.printService)
+      b.build
     }
 
     val enumFiles = for {
@@ -987,7 +989,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       b.build
     }
 
-    enumFiles ++ messageFiles :+ fileDescriptorObjectFile
+    serviceFiles ++ enumFiles ++ messageFiles :+ fileDescriptorObjectFile
   }
 }
 

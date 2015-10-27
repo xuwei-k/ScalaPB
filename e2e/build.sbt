@@ -1,5 +1,7 @@
 import com.trueaccord.scalapb.{ScalaPbPlugin => PB}
 
+name := "e2e"
+
 PB.protobufSettings
 
 PB.scalapbVersion in PB.protobufConfig := com.trueaccord.scalapb.Version.scalapbVersion
