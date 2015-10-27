@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package com.trueaccord.proto.e2e;
+
+import "scalapb/scalapb.proto";
+
+message Req1 {}
+message Res1 {}
+message Req2 {}
+message Res2 {}
+service Service1 {
+  rpc hello (Req1) returns (Res1) {}
+  rpc foo (Req2) returns (Res2) {}
+}
