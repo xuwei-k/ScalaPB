@@ -82,9 +82,9 @@ s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): sc
 
     val javaMethods = service.getMethods.asScala.map{ method =>
 s"""        override def ${method.getName}(request: ${javaServiceFull}.${method.getInputType.getName}, observer: io.grpc.stub.StreamObserver[${javaServiceFull}.${method.getOutputType.getName}]): Unit = {
-          self.${method.getName}(request).onComplete {
+          self.${method.getName}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
             case scala.util.Success(value) =>
-              observer.onNext(value)
+              observer.onNext(${method.getOutputType.scalaTypeName}.toJavaProto(value))
               observer.onCompleted()
             case scala.util.Failure(error) =>
               observer.onError(error)
