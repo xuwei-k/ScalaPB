@@ -1,5 +1,7 @@
 package com.trueaccord.scalapb.compiler
 
+import java.util.Locale
+
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scala.collection.JavaConverters._
 
@@ -32,6 +34,11 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
   }
 
   val javaServiceFull = {
+    val init :+ last = service.getFile.scalaPackageName.split('.').toSeq
+    (init :+ snakeCaseToCamelCase(last, true)).mkString(".")
+  }
+
+  val javaServiceGrpcFull = {
     val p = servicePackageName
     addPackageName(javaServiceClassName)
   }
@@ -56,7 +63,7 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
 
   val clientClassName = "Scala" + service.getName + "Client"
   val clientClassImplName = clientClassName + "Impl"
-  val javaClientClassName = javaServiceFull + "." + service.getName + "FutureClient"
+  val javaClientClassName = javaServiceGrpcFull + "." + service.getName + "FutureClient"
 
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L523-L551]]
@@ -74,7 +81,7 @@ s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): sc
     val executionContext = "executionContext"
 
     val javaMethods = service.getMethods.asScala.map{ method =>
-s"""        override def ${method.getName}(request: ${method.getInputType.scalaTypeName}, observer: io.grpc.stub.StreamObserver[${method.getOutputType.scalaTypeName}]): Unit = {
+s"""        override def ${method.getName}(request: ${javaServiceFull}.${method.getInputType.getName}, observer: io.grpc.stub.StreamObserver[${javaServiceFull}.${method.getOutputType.getName}]): Unit = {
           self.${method.getName}(request).onComplete {
             case scala.util.Success(value) =>
               observer.onNext(value)
@@ -87,10 +94,10 @@ s"""        override def ${method.getName}(request: ${method.getInputType.scalaT
     }.mkString("\n")
 
     val build = s"""    final def build($executionContext: scala.concurrent.ExecutionContext): io.grpc.ServerServiceDefinition = {
-      val s = new ${javaServiceFull}.${service.getName} {
+      val s = new ${javaServiceGrpcFull}.${service.getName} {
 $javaMethods
       }
-      ${javaServiceFull}.bindService(s)
+      ${javaServiceGrpcFull}.bindService(s)
     }"""
 
 s"""  trait $serverClassName { self =>
@@ -111,7 +118,7 @@ $build
 
     val methodsImpl = service.getMethods.asScala.map{ method =>
       signature(method) + s""" = {
-      $underlying.${method.getName}(${method.getInputType.scalaTypeName}.toJavaProto(request))
+      guavaFuture2ScalaFuture($underlying.${method.getName}(${method.getInputType.scalaTypeName}.toJavaProto(request)))(${method.getOutputType.scalaTypeName}.fromJavaProto(_))
     }"""
     }
 
@@ -125,13 +132,23 @@ ${methods.mkString("\n")}
 
   class $clientClassImplName(val $underlying: $javaClientClassName) extends $clientClassName {
     def this(channel: io.grpc.Channel) = {
-      this($javaServiceFull.newFutureStub(channel))
+      this($javaServiceGrpcFull.newFutureStub(channel))
     }
 
 ${methodsImpl.mkString("\n")}
   }"""
   }
 
+  val guavaFuture2ScalaFuture = {
+s"""  private def guavaFuture2ScalaFuture[A, B](guavaFuture: com.google.common.util.concurrent.ListenableFuture[A])(converter: A => B): scala.concurrent.Future[B] = {
+    val p = scala.concurrent.Promise[B]()
+    com.google.common.util.concurrent.Futures.addCallback(guavaFuture, new com.google.common.util.concurrent.FutureCallback[A] {
+      override def onFailure(t: Throwable) = p.failure(t)
+      override def onSuccess(a: A) = p.success(converter(a))
+    })
+    p.future
+  }"""
+  }
 
   def printService: String = {
 s"""$serviceJavaPackage
@@ -142,6 +159,7 @@ $imports
 object $serviceClassName {
   val SERVICE_NAME = "${service.getFullName}"
 
+$guavaFuture2ScalaFuture
 
 $serverClass
 
