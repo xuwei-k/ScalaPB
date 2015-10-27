@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 set -e
-sbt +publishLocal createVersionFile
+sbt ++$TRAVIS_SCALA_VERSION createVersionFile
 cd e2e
-sbt clean test
+sbt ++$TRAVIS_SCALA_VERSION clean test:compile
 
