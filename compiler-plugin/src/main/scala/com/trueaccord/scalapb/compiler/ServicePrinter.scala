@@ -74,14 +74,16 @@ s"""  def newScalaServer(channel: io.grpc.Channel): $serverClassName =
 
   val serverClass = {
     val methods = service.getMethods.asScala.map{ method =>
-s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
+s"""    def ${snakeCaseToCamelCase(method.getName)}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
     }.mkString("\n")
 
     val executionContext = "executionContext"
 
     val javaMethods = service.getMethods.asScala.map{ method =>
-s"""        override def ${method.getName}(request: ${javaServiceFull}.${method.getInputType.getName}, observer: io.grpc.stub.StreamObserver[${javaServiceFull}.${method.getOutputType.getName}]): Unit = {
-          self.${method.getName}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
+      val methodName = snakeCaseToCamelCase(method.getName)
+
+s"""        override def ${methodName}(request: ${javaServiceFull}.${method.getInputType.getName}, observer: io.grpc.stub.StreamObserver[${javaServiceFull}.${method.getOutputType.getName}]): Unit = {
+          self.${methodName}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
             case scala.util.Success(value) =>
               observer.onNext(${method.getOutputType.scalaTypeName}.toJavaProto(value))
               observer.onCompleted()
@@ -108,7 +110,7 @@ $build
 
   val clientClass = {
     val signature = { method: MethodDescriptor =>
-      s"""    def ${method.getName}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
+      s"""    def ${snakeCaseToCamelCase(method.getName)}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
     }
 
     val methods = service.getMethods.asScala.map(signature)
@@ -117,7 +119,7 @@ $build
 
     val methodsImpl = service.getMethods.asScala.map{ method =>
       signature(method) + s""" = {
-      guavaFuture2ScalaFuture($underlying.${method.getName}(${method.getInputType.scalaTypeName}.toJavaProto(request)))(${method.getOutputType.scalaTypeName}.fromJavaProto(_))
+      guavaFuture2ScalaFuture($underlying.${snakeCaseToCamelCase(method.getName)}(${method.getInputType.scalaTypeName}.toJavaProto(request)))(${method.getOutputType.scalaTypeName}.fromJavaProto(_))
     }"""
     }
 
