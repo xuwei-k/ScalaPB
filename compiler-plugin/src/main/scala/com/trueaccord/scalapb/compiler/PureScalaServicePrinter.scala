@@ -61,7 +61,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
 
-  private[this] val clientImpl: Printer = { p =>
+  private[this] val blockingClientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
       Printer{ p =>
         p.add(
@@ -89,6 +89,18 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     )
   }
 
+  private[this] val guavaFuture2ScalaFuture = {
+    s"""  private def guavaFuture2ScalaFuture[A](guavaFuture: com.google.common.util.concurrent.ListenableFuture[A]): scala.concurrent.Future[A] = {
+    val p = scala.concurrent.Promise[B]()
+    com.google.common.util.concurrent.Futures.addCallback(guavaFuture, new com.google.common.util.concurrent.FutureCallback[A] {
+      override def onFailure(t: Throwable) = p.failure(t)
+      override def onSuccess(a: A) = p.success(a)
+    })
+    p.future
+  }"""
+  }
+
+
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer.add(
       servicePackage,
@@ -99,7 +111,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     ).ln.withIndent(
       base,
       FunctionalPrinter.ln,
-      clientImpl
+      blockingClientImpl
     ).ln.addI(
       s"def blockingClient(channel: $channel): $serviceBlocking = ???",
       s"def futureClient(channel: $channel): $serviceFuture = ???"

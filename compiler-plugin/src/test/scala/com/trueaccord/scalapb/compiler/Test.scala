@@ -51,9 +51,8 @@ class Test extends FunSpec {
     import sbt.Path._
 
     val protoDirs = List(
-      "protobuf/scalapb/scalapb.proto",
-      "third_party/google/protobuf/compiler/",
-      "third_party/google/protobuf/"
+      "third_party/",
+      "protobuf/"
     ).map(new File(_).getAbsolutePath)
 
     it("test") {
@@ -66,7 +65,12 @@ class Test extends FunSpec {
 
           package $packageName;
 
-          message Req1 {}
+          import "scalapb/scalapb.proto";
+
+          message Req1 {
+            string a = 1;
+            option (scalapb.message).extends = "com.google.protobuf.MessageLite";
+          }
           message Res1 {}
 
           message Req2 {}
