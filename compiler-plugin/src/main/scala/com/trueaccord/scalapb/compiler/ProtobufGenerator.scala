@@ -939,11 +939,12 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 
   def generateScalaFilesForFileDescriptor(file: FileDescriptor): Seq[CodeGeneratorResponse.File] = {
     val serviceFiles = file.getServices.map { service =>
-      val p = new ServicePrinter(service, params)
-      println(p.printService)
+      val p = new PureScalaServicePrinter(service, params)
+      val code = p.printService(FunctionalPrinter()).result()
+      println(code)
       val b = CodeGeneratorResponse.File.newBuilder()
       b.setName(file.scalaPackageName.replace('.', '/') + "/" + service.getName + ".scala")
-      b.setContent(p.printService)
+      b.setContent(code)
       b.build
     }
 

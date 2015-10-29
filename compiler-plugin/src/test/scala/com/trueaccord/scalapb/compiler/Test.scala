@@ -81,9 +81,13 @@ class Test extends FunSpec {
             inputProto.getAbsolutePath
           )
 
-          ProtocDriverFactory.create().buildRunner { a => Protoc.runProtoc("-v300" +: a.toArray) }(args)
-          println(outDir.listFiles().length)
-          val sources = (outDir ** "*.scala").get.map{ f =>
+          val res = ProtocDriverFactory.create().buildRunner { a => Protoc.runProtoc("-v300" +: a.toArray) }(args)
+          assert(res == 0)
+          val files = (outDir ** "*.scala").get
+          println("file count " + files.size)
+          println(files.map(_.getName))
+//          files.foreach(f => println(sbt.IO.read(f) + "\n" + ("-" * 200) + "\n"))
+          val sources = files.map{ f =>
             Test.SourceCode(f.getName, sbt.IO.read(f))
           }
 
