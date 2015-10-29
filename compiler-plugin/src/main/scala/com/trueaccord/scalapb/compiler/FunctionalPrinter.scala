@@ -4,14 +4,27 @@ trait FPrintable {
   def print(printer: FunctionalPrinter): FunctionalPrinter
 }
 
+object FunctionalPrinter {
+  val ln: FunctionalPrinter => FunctionalPrinter = _.ln
+}
+
 case class FunctionalPrinter(content: List[String] = Nil, indentLevel: Int = 0) {
   val INDENT_SIZE = 2
 
   def seq(s: Seq[String]): FunctionalPrinter = add(s: _*)
+  def seqI(s: Seq[String]): FunctionalPrinter = addI(s: _*)
 
   def add(s: String*): FunctionalPrinter = {
     copy(content = s.map(l => " " * (indentLevel * INDENT_SIZE) + l).reverseIterator.toList ::: content)
   }
+
+  /** add with indent */
+  def addI(s: String*): FunctionalPrinter = {
+    this.indent.seq(s).outdent
+  }
+
+  /** new line */
+  def ln: FunctionalPrinter = add("")
 
   def addM(s: String): FunctionalPrinter =
     add(s.stripMargin.split("\n", -1): _*)
@@ -36,7 +49,8 @@ case class FunctionalPrinter(content: List[String] = Nil, indentLevel: Int = 0) 
 
   def call(f: FunctionalPrinter => FunctionalPrinter) = f(this)
 
-  def withIndent(f: FunctionalPrinter => FunctionalPrinter) = f(this.indent).outdent
+  def withIndent(f: (FunctionalPrinter => FunctionalPrinter)*): FunctionalPrinter =
+    f.foldLeft(this.indent)((p, f) => f(p)).outdent
 
   def when(cond: => Boolean)(func: FunctionalPrinter => FunctionalPrinter) =
     if (cond) {
