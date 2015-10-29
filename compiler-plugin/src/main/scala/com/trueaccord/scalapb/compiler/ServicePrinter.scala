@@ -35,10 +35,7 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
     (init :+ snakeCaseToCamelCase(last, true)).mkString(".")
   }
 
-  private[this] val javaServiceGrpcFull = {
-    val p = servicePackageName
-    addPackageName(javaServiceClassName)
-  }
+  private[this] val javaServiceGrpcFull = addPackageName(javaServiceClassName)
 
   private[this] val serviceJavaPackage = {
     val p = servicePackageName
@@ -65,14 +62,6 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
   private[this] val asyncClientClass = clientClassImpl("Async")
   private[this] val javaAsyncClientClassName = javaServiceGrpcFull + "." + service.getName + "FutureClient"
   private[this] val javaBlockingClientClassName = javaServiceGrpcFull + "." + service.getName + "BlockingClient"
-
-  /**
-   * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L523-L551]]
-   */
-  private[this] val stubMethods = {
-s"""  def newScalaServer(channel: io.grpc.Channel): $serverClassName =
-    new $serverClassName(channel)"""
-  }
 
   private[this] val serverClass = {
     val methods = service.getMethods.asScala.map{ method =>
