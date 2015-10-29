@@ -35,6 +35,8 @@ libraryDependencies ++= Seq(
   "com.google.protobuf" % "protobuf-java" % "3.0.0-beta-1",
   "org.scalatest" %% "scalatest" % "2.2.5" % "test",
   "com.github.os72" % "protoc-jar" % "3.0.0-b1" % "test",
+  "io.grpc" % "grpc-all" % "0.9.0" % "test",
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
   "org.scala-lang" % "scala-reflect" % scalaVersion.value
 )
 
