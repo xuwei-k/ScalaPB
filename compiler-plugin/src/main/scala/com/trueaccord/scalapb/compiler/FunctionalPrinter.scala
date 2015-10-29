@@ -47,7 +47,8 @@ case class FunctionalPrinter(content: List[String] = Nil, indentLevel: Int = 0) 
   def indent = copy(indentLevel = indentLevel + 1)
   def outdent = copy(indentLevel = indentLevel - 1)
 
-  def call(f: FunctionalPrinter => FunctionalPrinter) = f(this)
+  def call(f: (FunctionalPrinter => FunctionalPrinter)*): FunctionalPrinter =
+    f.foldLeft(this)((p, f) => f(p))
 
   def withIndent(f: (FunctionalPrinter => FunctionalPrinter)*): FunctionalPrinter =
     f.foldLeft(this.indent)((p, f) => f(p)).outdent

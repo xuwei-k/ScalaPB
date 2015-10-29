@@ -18,9 +18,11 @@ object Test{
 
     val classPath = Seq(
       jarForClass[annotation.Annotation],
+      jarForClass[javax.annotation.Nullable],
       jarForClass[com.trueaccord.scalapb.GeneratedMessage],
       jarForClass[com.trueaccord.scalapb.Scalapb],
       jarForClass[com.google.protobuf.Message],
+      jarForClass[com.google.common.util.concurrent.ListenableFuture[_]],
       jarForClass[io.grpc.Channel],
       jarForClass[com.trueaccord.lenses.Lens[_, _]],
       dir

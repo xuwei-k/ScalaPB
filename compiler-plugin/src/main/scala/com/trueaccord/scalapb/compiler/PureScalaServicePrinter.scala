@@ -6,6 +6,9 @@ import scala.collection.JavaConverters._
 final class PureScalaServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
 
   type Printer = FunctionalPrinter => FunctionalPrinter
+
+  def Printer(f: Printer) = f
+
   /**
    * [[https://github.com/google/protobuf/blob/v3.0.0-beta-1/src/google/protobuf/compiler/java/java_helpers.cc#L224-L227]]
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L641-L648]]
@@ -49,20 +52,38 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   }
 
   private[this] val channel = "io.grpc.Channel"
+  private[this] val callOptions = "io.grpc.CallOptions"
 
   private[this] def serviceName(p: String) = service.getName + "[" + p + "]"
   private[this] val serviceBlocking = serviceName("({type l[a] = a})#l")
   private[this] val serviceFuture = serviceName("scala.concurrent.Future")
 
+  private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
+  private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
+
   private[this] val clientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
-      methodSig(m, identity) + " = ???"
+      Printer{ p =>
+        p.add(
+          methodSig(m, identity) + " = {"
+        ).add(
+          s"""  $blockingUnaryCall(channel.newCall(null, options), request)""",
+          "}"
+        )
+      }
     }
 
+    val className = service.getName + "BlockingClientImpl"
+
+    val build =
+      s"  override def build(channel: $channel, options: $callOptions): $className = new $className(channel, options)"
+
     p.add(
-      s"class ${service.getName}BlockingClientImpl(val channel: $channel) extends $serviceBlocking {"
-    ).seqI(
-      methods
+      s"class $className(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$className](channel, options) with $serviceBlocking {"
+    ).withIndent(
+      methods : _*
+    ).add(
+      build
     ).add(
       "}"
     )
