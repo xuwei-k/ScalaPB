@@ -32,17 +32,21 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     }
   }
 
-  private[this] def base: Printer = {
-    val methods: Printer = { p =>
-      p.seq(service.getMethods.asScala.map{ m =>
-        val name = snakeCaseToCamelCase(m.getName)
+  private[this] def methodName(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
 
-        s"def $name(request: ${m.getInputType.scalaTypeName}): ${m.getOutputType.scalaTypeName}"
-      })
+  def methodSig(method: MethodDescriptor, t: String => String) = {
+    s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}): ${t(method.getOutputType.scalaTypeName)}"
+  }
+
+  private[this] def base: Printer = {
+    val F = "F[" + (_: String) + "]"
+
+    val methods: Printer = { p =>
+      p.seq(service.getMethods.asScala.map(methodSig(_, F)))
     }
 
     { p =>
-      p.add(s"trait ${service.getName} {").withIndent(methods).add("}")
+      p.add(s"trait ${service.getName}[${F("_")}] {").withIndent(methods).add("}")
     }
   }
 
