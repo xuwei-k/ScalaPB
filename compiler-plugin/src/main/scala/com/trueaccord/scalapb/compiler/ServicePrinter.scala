@@ -1,7 +1,5 @@
 package com.trueaccord.scalapb.compiler
 
-import java.util.Locale
-
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scala.collection.JavaConverters._
 
