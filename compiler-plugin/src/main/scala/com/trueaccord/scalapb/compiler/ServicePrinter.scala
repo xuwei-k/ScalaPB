@@ -9,21 +9,21 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L564-L593]]
    */
-  val imports = """"""
+  private[this] val imports = """"""
 
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L651]]
    */
-  val javaServiceClassName = service.getName + "Grpc"
-  val serviceClassName = service.getName + "GrpcScala"
+  private[this] val javaServiceClassName = service.getName + "Grpc"
+  private[this] val serviceClassName = service.getName + "GrpcScala"
 
   /**
    * [[https://github.com/google/protobuf/blob/v3.0.0-beta-1/src/google/protobuf/compiler/java/java_helpers.cc#L224-L227]]
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L641-L648]]
    */
-  val servicePackageName = service.getFullName.split('.').init.mkString(".")
+  private[this] val servicePackageName = service.getFullName.split('.').init.mkString(".")
 
-  def addPackageName(s: String): String = {
+  private[this] def addPackageName(s: String): String = {
     val p = servicePackageName
     if (p.nonEmpty) {
       p + "." + s
@@ -32,17 +32,17 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
     }
   }
 
-  val javaServiceFull = {
+  private[this] val javaServiceFull = {
     val init :+ last = service.getFile.scalaPackageName.split('.').toSeq
     (init :+ snakeCaseToCamelCase(last, true)).mkString(".")
   }
 
-  val javaServiceGrpcFull = {
+  private[this] val javaServiceGrpcFull = {
     val p = servicePackageName
     addPackageName(javaServiceClassName)
   }
 
-  val serviceJavaPackage = {
+  private[this] val serviceJavaPackage = {
     val p = servicePackageName
     if(p.nonEmpty) {
       "package " + p
@@ -54,25 +54,29 @@ final class ServicePrinter(service: ServiceDescriptor, override val params: Gene
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L73-L144]]
    */
-  val methodFields = {
+  private[this] val methodFields = {
 
   }
 
-  val serverClassName = "Scala" + service.getName + "Server"
+  private[this] val serverClassName = "Scala" + service.getName + "Server"
 
-  val clientClassName = "Scala" + service.getName + "Client"
-  val clientClassImplName = clientClassName + "Impl"
-  val javaClientClassName = javaServiceGrpcFull + "." + service.getName + "FutureClient"
+  private[this] def clientClassName(suffix: String) = "Scala" + service.getName + suffix + "Client"
+  private[this] val clientClassNameBase = clientClassName("")
+  private[this] def clientClassImpl(suffix: String) = clientClassName(suffix) + "Impl"
+  private[this] val blockingClientClass = clientClassImpl("Blocking")
+  private[this] val asyncClientClass = clientClassImpl("Async")
+  private[this] val javaAsyncClientClassName = javaServiceGrpcFull + "." + service.getName + "FutureClient"
+  private[this] val javaBlockingClientClassName = javaServiceGrpcFull + "." + service.getName + "BlockingClient"
 
   /**
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L523-L551]]
    */
-  val stubMethods = {
+  private[this] val stubMethods = {
 s"""  def newScalaServer(channel: io.grpc.Channel): $serverClassName =
     new $serverClassName(channel)"""
   }
 
-  val serverClass = {
+  private[this] val serverClass = {
     val methods = service.getMethods.asScala.map{ method =>
 s"""    def ${snakeCaseToCamelCase(method.getName)}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
     }.mkString("\n")
@@ -108,39 +112,58 @@ $build
   }"""
   }
 
-  val clientClass = {
-    val signature = { method: MethodDescriptor =>
-      s"""    def ${snakeCaseToCamelCase(method.getName)}(request: ${method.getInputType.scalaTypeName}): scala.concurrent.Future[${method.getOutputType.scalaTypeName}]"""
+  private[this] val clientClass = {
+    def signature(outType: String => String) = { method: MethodDescriptor =>
+      s"""    def ${snakeCaseToCamelCase(method.getName)}(request: ${method.getInputType.scalaTypeName}): ${outType(method.getOutputType.scalaTypeName)}"""
     }
 
-    val methods = service.getMethods.asScala.map(signature)
+    val F = "F[" + (_: String) + "]"
+    val typeParam = F("_")
+
+    val methods = service.getMethods.asScala.map(signature(F))
 
     val underlying = "underlying"
 
-    val methodsImpl = service.getMethods.asScala.map{ method =>
-      signature(method) + s""" = {
+    val asyncMethodsImpl = service.getMethods.asScala.map{ method =>
+      signature("scala.concurrent.Future[" + _ + "]")(method) + s""" = {
       guavaFuture2ScalaFuture($underlying.${snakeCaseToCamelCase(method.getName)}(${method.getInputType.scalaTypeName}.toJavaProto(request)))(${method.getOutputType.scalaTypeName}.fromJavaProto(_))
     }"""
     }
 
-s"""  trait $clientClassName {
+    val blockingMethodsImpl = service.getMethods.asScala.map{ method =>
+      signature(identity)(method) + s""" = {
+      ${method.getOutputType.scalaTypeName}.fromJavaProto($underlying.${snakeCaseToCamelCase(method.getName)}(${method.getInputType.scalaTypeName}.toJavaProto(request)))
+    }"""
+    }
+
+
+s"""  trait $clientClassNameBase[$typeParam] {
 ${methods.mkString("\n")}
   }
 
-  object $clientClassName {
-    def get(channel: io.grpc.Channel) = new $clientClassImplName(channel)
+  object $clientClassNameBase {
+    def blocking(channel: io.grpc.Channel) = new $blockingClientClass(channel)
+    def async(channel: io.grpc.Channel) = new $asyncClientClass(channel)
   }
 
-  class $clientClassImplName(val $underlying: $javaClientClassName) extends $clientClassName {
+  class $blockingClientClass(val $underlying: $javaBlockingClientClassName) extends $clientClassNameBase[({type l[a] = a})#l] {
+    def this(channel: io.grpc.Channel) = {
+      this($javaServiceGrpcFull.newBlockingStub(channel))
+    }
+
+${blockingMethodsImpl.mkString("\n")}
+  }
+
+  class $asyncClientClass(val $underlying: $javaAsyncClientClassName) extends $clientClassNameBase[scala.concurrent.Future] {
     def this(channel: io.grpc.Channel) = {
       this($javaServiceGrpcFull.newFutureStub(channel))
     }
 
-${methodsImpl.mkString("\n")}
+${asyncMethodsImpl.mkString("\n")}
   }"""
   }
 
-  val guavaFuture2ScalaFuture = {
+  private[this] val guavaFuture2ScalaFuture = {
 s"""  private def guavaFuture2ScalaFuture[A, B](guavaFuture: com.google.common.util.concurrent.ListenableFuture[A])(converter: A => B): scala.concurrent.Future[B] = {
     val p = scala.concurrent.Promise[B]()
     com.google.common.util.concurrent.Futures.addCallback(guavaFuture, new com.google.common.util.concurrent.FutureCallback[A] {
