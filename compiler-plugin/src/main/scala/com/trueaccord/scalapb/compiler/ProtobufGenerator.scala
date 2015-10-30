@@ -941,6 +941,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     val serviceFiles = file.getServices.map { service =>
       val p = new PureScalaServicePrinter(service, params)
       val code = p.printService(FunctionalPrinter()).result()
+//      println((Stream.from(1), code.lines.toSeq).zipped.map{ (n, line) => n + " " + line}.mkString("\n"))
       println(code)
       val b = CodeGeneratorResponse.File.newBuilder()
       b.setName(file.scalaPackageName.replace('.', '/') + "/" + service.getName + ".scala")

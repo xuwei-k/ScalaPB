@@ -76,7 +76,7 @@ class Test extends FunSpec {
           message Res2 {}
 
           service Service1 {
-            rpc hello (Req1) returns (Res1) {}
+            rpc helloWorld (Req1) returns (Res1) {}
             rpc foo (Req2) returns (Res2) {}
           }
           """

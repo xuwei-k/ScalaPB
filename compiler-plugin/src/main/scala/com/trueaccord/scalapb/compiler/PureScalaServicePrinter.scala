@@ -1,5 +1,7 @@
 package com.trueaccord.scalapb.compiler
 
+import java.util.Locale
+
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scala.collection.JavaConverters._
 
@@ -61,25 +63,25 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
 
+  private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
+
   private[this] val blockingClientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
       Printer{ p =>
         p.add(
           "override " + methodSig(m, identity) + " = {"
         ).add(
-          s"""  $blockingUnaryCall(channel.newCall(null, options), request)""",
+          s"""  ${m.getOutputType.scalaTypeName}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
           "}"
         )
       }
     }
 
-    val className = service.getName + "BlockingClientImpl"
-
     val build =
-      s"  override def build(channel: $channel, options: $callOptions): $className = new $className(channel, options)"
+      s"  override def build(channel: $channel, options: $callOptions): $blockingClientName = new $blockingClientName(channel, options)"
 
     p.add(
-      s"class $className(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$className](channel, options) with $serviceBlocking {"
+      s"class $blockingClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$blockingClientName](channel, options) with $serviceBlocking {"
     ).withIndent(
       methods : _*
     ).add(
@@ -92,15 +94,17 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val guavaFuture2ScalaFuture = "guavaFuture2ScalaFuture"
 
   private[this] val guavaFuture2ScalaFutureImpl = {
-    s"""private def guavaFuture2ScalaFuture[A](guavaFuture: com.google.common.util.concurrent.ListenableFuture[A]): scala.concurrent.Future[A] = {
-    val p = scala.concurrent.Promise[A]()
+    s"""private[this] def $guavaFuture2ScalaFuture[A, B](guavaFuture: com.google.common.util.concurrent.ListenableFuture[A])(converter: A => B): scala.concurrent.Future[B] = {
+    val p = scala.concurrent.Promise[B]()
     com.google.common.util.concurrent.Futures.addCallback(guavaFuture, new com.google.common.util.concurrent.FutureCallback[A] {
       override def onFailure(t: Throwable) = p.failure(t)
-      override def onSuccess(a: A) = p.success(a)
+      override def onSuccess(a: A) = p.success(converter(a))
     })
     p.future
   }"""
   }
+
+  private[this] val asyncClientName = service.getName + "AsyncClientImpl"
 
   private[this] val asyncClientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
@@ -108,19 +112,17 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
         p.add(
           "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
         ).add(
-          s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(null, options), request))""",
+          s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.getOutputType.scalaTypeName}.fromJavaProto(_))""",
           "}"
         )
       }
     }
 
-    val className = service.getName + "AsyncClientImpl"
-
     val build =
-      s"  override def build(channel: $channel, options: $callOptions): $className = new $className(channel, options)"
+      s"  override def build(channel: $channel, options: $callOptions): $asyncClientName = new $asyncClientName(channel, options)"
 
     p.add(
-      s"class $className(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$className](channel, options) with $serviceFuture {"
+      s"class $asyncClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$asyncClientName](channel, options) with $serviceFuture {"
     ).withIndent(
       methods : _*
     ).add(
@@ -130,6 +132,23 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     )
   }
 
+  private[this] def methodDescriptorName(method: MethodDescriptor): String =
+    "METHOD_" + method.getName.toUpperCase(Locale.ENGLISH)
+
+  private[this] def methodDescriptor(method: MethodDescriptor) = {
+    val inJava = method.getInputType.javaTypeName
+    val outJava = method.getOutputType.javaTypeName
+
+s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
+    io.grpc.MethodDescriptor.create(
+      io.grpc.MethodDescriptor.MethodType.UNARY,
+      io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${service.getName}"),
+      io.grpc.protobuf.ProtoUtils.marshaller($inJava.getDefaultInstance),
+      io.grpc.protobuf.ProtoUtils.marshaller($outJava.getDefaultInstance)
+    )"""
+  }
+
+  private[this] val methodDescriptors: Seq[String] = service.getMethods.asScala.map(methodDescriptor)
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer.add(
@@ -138,6 +157,8 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
       "import scala.language.higherKinds",
       "",
       s"object ${service.getName + "Grpc"} {"
+    ).seq(
+      methodDescriptors
     ).ln.withIndent(
       base,
       FunctionalPrinter.ln,
@@ -146,8 +167,8 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
       asyncClientImpl
     ).ln.addI(
       guavaFuture2ScalaFutureImpl,
-      s"def blockingClient(channel: $channel): $serviceBlocking = ???",
-      s"def futureClient(channel: $channel): $serviceFuture = ???"
+      s"def blockingClient(channel: $channel): $serviceBlocking = new $blockingClientName(channel)",
+      s"def futureClient(channel: $channel): $serviceFuture = new $asyncClientName(channel)"
     ).add(
       ""
     ).outdent.add("}")
