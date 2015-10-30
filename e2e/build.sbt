@@ -13,10 +13,10 @@ PB.javaConversions in PB.protobufConfig := true
     val exe = dir / "grpc.exe"
     java.nio.file.Files.write(exe.toPath, grpcExe.value.get())
     exe.setExecutable(true)
-    val args = args0 ++ Array(
-//      s"--plugin=protoc-gen-java_rpc=${exe.getAbsolutePath}",
-//      s"--java_rpc_out=${((sourceManaged in Compile).value / "compiled_protobuf").getAbsolutePath}"
-    )
+    val args = args0 /* ++ Array(
+      s"--plugin=protoc-gen-java_rpc=${exe.getAbsolutePath}",
+      s"--java_rpc_out=${((sourceManaged in Compile).value / "compiled_protobuf").getAbsolutePath}"
+    ) */
     println(s"runProtoc ${args.mkString(" ")}")
     com.github.os72.protocjar.Protoc.runProtoc("-v300" +: args.toArray)
   }
