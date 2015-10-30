@@ -69,7 +69,6 @@ class Test extends FunSpec {
 
           message Req1 {
             string a = 1;
-            option (scalapb.message).extends = "com.google.protobuf.MessageLite";
           }
           message Res1 {}
 
@@ -83,13 +82,14 @@ class Test extends FunSpec {
           """
           Files.write(inputProto.toPath, java.util.Collections.singletonList(input))
           val args: Array[String] = (inputDir :: protoDirs).map("-I" + _).toArray ++ Array[String](
-            "--scala_out=" + outDir.getAbsolutePath,
+            "--scala_out=java_conversions:" + outDir.getAbsolutePath,
+            "--java_out=" + outDir.getAbsolutePath,
             inputProto.getAbsolutePath
           )
 
           val res = ProtocDriverFactory.create().buildRunner { a => Protoc.runProtoc("-v300" +: a.toArray) }(args)
           assert(res == 0)
-          val files = (outDir ** "*.scala").get
+          val files = ((outDir ** "*.scala") +++ (outDir ** "*.java")).get
           println("file count " + files.size)
           println(files.map(_.getName))
 //          files.foreach(f => println(sbt.IO.read(f) + "\n" + ("-" * 200) + "\n"))
