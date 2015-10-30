@@ -62,6 +62,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
+  private[this] val asyncUnaryCall = "io.grpc.stub.ServerCalls.asyncUnaryCall"
 
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
 
@@ -150,6 +151,43 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
 
   private[this] val methodDescriptors: Seq[String] = service.getMethods.asScala.map(methodDescriptor)
 
+  private[this] def unaryMethodName(method: MethodDescriptor) =
+    method.getName + "UnaryMethod"
+
+  private[this] def createUnaryMethod(method: MethodDescriptor) = {
+    val javaIn = method.getInputType.javaTypeName
+    val javaOut = method.getOutputType.javaTypeName
+    val unaryMethod = s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
+    val executionContext = "executionContext"
+
+    val serviceImpl = "serviceImpl"
+s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $unaryMethod = {
+    new $unaryMethod {
+      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
+        $serviceImpl.${method.getName}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
+          case scala.util.Success(value) =>
+            observer.onNext(${method.getOutputType.scalaTypeName}.toJavaProto(value))
+            observer.onCompleted()
+          case scala.util.Failure(error) =>
+            observer.onError(error)
+            observer.onCompleted()
+        }($executionContext)
+      }
+    }
+  }"""
+  }
+
+  private[this] val bindService = {
+    val executionContext = "executionContext"
+    val methods = service.getMethods.asScala.map { m =>
+      s".addMethod(${methodDescriptorName(m)}, $asyncUnaryCall(${unaryMethodName(m)}(service, $executionContext)))"
+    }.mkString
+
+s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): io.grpc.ServerServiceDefinition =
+    io.grpc.ServerServiceDefinition.builder("${service.getName}")$methods.build()
+  """
+  }
+
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer.add(
       servicePackage,
@@ -157,6 +195,8 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
       "import scala.language.higherKinds",
       "",
       s"object ${service.getName + "Grpc"} {"
+    ).seq(
+      service.getMethods.asScala.map(createUnaryMethod)
     ).seq(
       methodDescriptors
     ).ln.withIndent(
@@ -166,6 +206,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
       FunctionalPrinter.ln,
       asyncClientImpl
     ).ln.addI(
+      bindService,
       guavaFuture2ScalaFutureImpl,
       s"def blockingClient(channel: $channel): $serviceBlocking = new $blockingClientName(channel)",
       s"def futureClient(channel: $channel): $serviceFuture = new $asyncClientName(channel)"
