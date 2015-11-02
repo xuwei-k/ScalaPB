@@ -15,15 +15,8 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
    * [[https://github.com/google/protobuf/blob/v3.0.0-beta-1/src/google/protobuf/compiler/java/java_helpers.cc#L224-L227]]
    * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L641-L648]]
    */
-  private[this] val servicePackageName = service.getFullName.split('.').init.mkString(".")
-
   private[this] val servicePackage = {
-    val p = servicePackageName
-    if(p.nonEmpty) {
-      "package " + p
-    } else {
-      ""
-    }
+    "package " + service.getFile.scalaPackageName
   }
 
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
@@ -194,13 +187,15 @@ s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent
   """
   }
 
+  val objectName = service.getName + "Grpc"
+
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer.add(
       servicePackage,
       "",
       "import scala.language.higherKinds",
       "",
-      s"object ${service.getName + "Grpc"} {"
+      s"object $objectName {"
     ).seq(
       service.getMethods.asScala.map(createUnaryMethod)
     ).seq(
