@@ -35,7 +35,8 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     }
   }
 
-  private[this] def methodName(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
+  private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
+  private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
 
   def methodSig(method: MethodDescriptor, t: String => String) = {
     s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}): ${t(method.getOutputType.scalaTypeName)}"
@@ -152,7 +153,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
   private[this] val methodDescriptors: Seq[String] = service.getMethods.asScala.map(methodDescriptor)
 
   private[this] def unaryMethodName(method: MethodDescriptor) =
-    methodName(method) + "UnaryMethod"
+    methodName0(method) + "UnaryMethod"
 
   private[this] def createUnaryMethod(method: MethodDescriptor) = {
     val javaIn = method.getInputType.javaTypeName

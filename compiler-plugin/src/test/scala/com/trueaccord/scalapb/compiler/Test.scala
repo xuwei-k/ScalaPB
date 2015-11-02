@@ -72,12 +72,12 @@ class Test extends FunSpec {
           }
           message Res1 {}
 
-          message Req2 {}
-          message Res2 {}
+          message match {}
+          message yield {}
 
           service Service1 {
             rpc helloWorld (Req1) returns (Res1) {}
-            rpc foo (Req2) returns (Res2) {}
+            rpc for (yield) returns (match) {}
           }
           """
           Files.write(inputProto.toPath, java.util.Collections.singletonList(input))
