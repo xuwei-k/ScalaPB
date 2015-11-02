@@ -101,12 +101,25 @@ object Nodes {
     lazy val filesById: Map[Int, FileNode] = files.map(f => (f.fileId, f)).toMap
   }
 
+  final case class MethodNode(name: String, request: MessageNode, response: MessageNode) {
+    def print(printer: FunctionalPrinter): FunctionalPrinter =
+      printer.add(s"rpc $name (${request.name}) returns (${response.name}) {};")
+  }
+
+  final case class ServiceNode(name: String, methods: Seq[MethodNode]) {
+    def print(printer: FunctionalPrinter): FunctionalPrinter =
+      printer.add(s"service $name {").indent
+       .print(methods)(_ print _).outdent
+       .add("}")
+  }
+
   case class FileNode(baseFileName: String,
                       protoSyntax: ProtoSyntax,
                       protoPackage: Option[String],
                       javaPackage: Option[String],
                       scalaOptions: Option[ScalaPbOptions],
                       messages: Seq[MessageNode],
+                      services: Seq[ServiceNode],
                       enums: Seq[EnumNode],
                       fileId: Int) extends Node {
     def allMessages = messages.foldLeft(Stream.empty[MessageNode])(_ ++ _.allMessages)
@@ -146,6 +159,7 @@ object Nodes {
       }).toSeq: _*)
         .printAll(enums)
         .print(messages)(_.print(rootNode, this, _))
+        .print(services)(_ print _)
 
     def javaOuterClass = (javaPackage.orElse(protoPackage).toSeq :+ snakeCaseToCamelCase(baseFileName, upperInitial = true)) mkString "."
 
