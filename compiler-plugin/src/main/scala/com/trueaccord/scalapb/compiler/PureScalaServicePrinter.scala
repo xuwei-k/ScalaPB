@@ -143,7 +143,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
     io.grpc.MethodDescriptor.create(
       io.grpc.MethodDescriptor.MethodType.UNARY,
-      io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${service.getName}"),
+      io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${method.getName}"),
       io.grpc.protobuf.ProtoUtils.marshaller($inJava.getDefaultInstance),
       io.grpc.protobuf.ProtoUtils.marshaller($outJava.getDefaultInstance)
     )"""
@@ -180,11 +180,16 @@ s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionCon
   private[this] val bindService = {
     val executionContext = "executionContext"
     val methods = service.getMethods.asScala.map { m =>
-      s".addMethod(${methodDescriptorName(m)}, $asyncUnaryCall(${unaryMethodName(m)}(service, $executionContext)))"
+s""".addMethod(
+      ${methodDescriptorName(m)},
+      $asyncUnaryCall(
+        ${unaryMethodName(m)}(service, $executionContext)
+      )
+    )"""
     }.mkString
 
 s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): io.grpc.ServerServiceDefinition =
-    io.grpc.ServerServiceDefinition.builder("${service.getName}")$methods.build()
+    io.grpc.ServerServiceDefinition.builder("${service.getFullName}")$methods.build()
   """
   }
 
