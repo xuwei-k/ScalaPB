@@ -50,14 +50,15 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     }
 
     { p =>
-      p.add(s"trait ${service.getName}[${F("_")}] {").withIndent(methods).add("}")
+      p.add(s"trait ${serviceName(F("_"))} {").withIndent(methods).add("}")
     }
   }
 
   private[this] val channel = "io.grpc.Channel"
   private[this] val callOptions = "io.grpc.CallOptions"
 
-  private[this] def serviceName(p: String) = service.getName + "[" + p + "]"
+  private[this] def serviceName0 = service.getName.asSymbol
+  private[this] def serviceName(p: String) = serviceName0 + "[" + p + "]"
   private[this] val serviceBlocking = serviceName("({type l[a] = a})#l")
   private[this] val serviceFuture = serviceName("scala.concurrent.Future")
 

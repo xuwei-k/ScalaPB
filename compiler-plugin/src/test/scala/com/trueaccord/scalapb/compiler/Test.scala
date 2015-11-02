@@ -79,6 +79,11 @@ class Test extends FunSpec {
             rpc helloWorld (Req1) returns (Res1) {}
             rpc for (yield) returns (match) {}
           }
+
+          service case {};
+          service macro {
+            rpc for (yield) returns (match) {}
+          }
           """
           Files.write(inputProto.toPath, java.util.Collections.singletonList(input))
           val args: Array[String] = (inputDir :: protoDirs).map("-I" + _).toArray ++ Array[String](
