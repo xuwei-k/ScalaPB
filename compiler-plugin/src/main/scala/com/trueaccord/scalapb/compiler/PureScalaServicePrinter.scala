@@ -17,15 +17,6 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
    */
   private[this] val servicePackageName = service.getFullName.split('.').init.mkString(".")
 
-  private[this] def addPackageName(s: String): String = {
-    val p = servicePackageName
-    if (p.nonEmpty) {
-      p + "." + s
-    } else {
-      s
-    }
-  }
-
   private[this] val servicePackage = {
     val p = servicePackageName
     if(p.nonEmpty) {
@@ -65,6 +56,8 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
   private[this] val asyncUnaryCall = "io.grpc.stub.ServerCalls.asyncUnaryCall"
+  private[this] val abstractStub = "io.grpc.stub.AbstractStub"
+
 
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
 
@@ -84,7 +77,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
       s"  override def build(channel: $channel, options: $callOptions): $blockingClientName = new $blockingClientName(channel, options)"
 
     p.add(
-      s"class $blockingClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$blockingClientName](channel, options) with $serviceBlocking {"
+      s"class $blockingClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends $abstractStub[$blockingClientName](channel, options) with $serviceBlocking {"
     ).withIndent(
       methods : _*
     ).add(
@@ -125,7 +118,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
       s"  override def build(channel: $channel, options: $callOptions): $asyncClientName = new $asyncClientName(channel, options)"
 
     p.add(
-      s"class $asyncClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends io.grpc.stub.AbstractStub[$asyncClientName](channel, options) with $serviceFuture {"
+      s"class $asyncClientName(channel: $channel, options: $callOptions = $callOptions.DEFAULT) extends $abstractStub[$asyncClientName](channel, options) with $serviceFuture {"
     ).withIndent(
       methods : _*
     ).add(
@@ -142,12 +135,16 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     val inJava = method.getInputType.javaTypeName
     val outJava = method.getOutputType.javaTypeName
 
+    def marshaller(typeName: String) =
+      s"io.grpc.protobuf.ProtoUtils.marshaller($typeName.getDefaultInstance)"
+
+
 s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
     io.grpc.MethodDescriptor.create(
       io.grpc.MethodDescriptor.MethodType.UNARY,
       io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${method.getName}"),
-      io.grpc.protobuf.ProtoUtils.marshaller($inJava.getDefaultInstance),
-      io.grpc.protobuf.ProtoUtils.marshaller($outJava.getDefaultInstance)
+      ${marshaller(inJava)},
+      ${marshaller(outJava)}
     )"""
   }
 
@@ -190,8 +187,10 @@ s""".addMethod(
     )"""
     }.mkString
 
-s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): io.grpc.ServerServiceDefinition =
-    io.grpc.ServerServiceDefinition.builder("${service.getFullName}")$methods.build()
+    val serverServiceDef = "io.grpc.ServerServiceDefinition"
+
+s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverServiceDef =
+    $serverServiceDef.builder("${service.getFullName}")$methods.build()
   """
   }
 
