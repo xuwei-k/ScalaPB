@@ -10,5 +10,5 @@ message Req2 {}
 message Res2 {}
 service Service1 {
   rpc hello (Req1) returns (Res1) {}
-  rpc foo (Req2) returns (Res2) {}
+  rpc Foo (Req2) returns (Res2) {}
 }

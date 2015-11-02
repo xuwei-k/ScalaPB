@@ -152,7 +152,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
   private[this] val methodDescriptors: Seq[String] = service.getMethods.asScala.map(methodDescriptor)
 
   private[this] def unaryMethodName(method: MethodDescriptor) =
-    method.getName + "UnaryMethod"
+    methodName(method) + "UnaryMethod"
 
   private[this] def createUnaryMethod(method: MethodDescriptor) = {
     val javaIn = method.getInputType.javaTypeName
@@ -164,7 +164,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
 s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $unaryMethod = {
     new $unaryMethod {
       override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
-        $serviceImpl.${method.getName}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
+        $serviceImpl.${methodName(method)}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
           case scala.util.Success(value) =>
             observer.onNext(${method.getOutputType.scalaTypeName}.toJavaProto(value))
             observer.onCompleted()

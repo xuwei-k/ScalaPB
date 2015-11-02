@@ -2,7 +2,7 @@ import java.util.concurrent.TimeUnit
 
 import com.trueaccord.pb.Service1Impl
 import com.trueaccord.proto.e2e.Service1Grpc
-import com.trueaccord.proto.e2e.service.Req1
+import com.trueaccord.proto.e2e.service._
 import io.grpc.netty.{NegotiationType, NettyChannelBuilder, NettyServerBuilder}
 import io.grpc.{ManagedChannel, ServerServiceDefinition}
 import org.scalatest.FlatSpec
@@ -20,6 +20,7 @@ class ServiceSpec extends FlatSpec {
     withServer(Service1Grpc.bindService(Service1Impl, singleThreadExecutionContext)){ channel =>
       val client = Service1Grpc.blockingClient(channel)
       client.hello(Req1())
+      client.foo(Req2())
     }
   }
 
