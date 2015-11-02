@@ -9,7 +9,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   type Printer = FunctionalPrinter => FunctionalPrinter
 
-  def Printer(f: Printer) = f
+  private[this] def Printer(f: Printer) = f
 
   /**
    * [[https://github.com/google/protobuf/blob/v3.0.0-beta-1/src/google/protobuf/compiler/java/java_helpers.cc#L224-L227]]
@@ -29,7 +29,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
   private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
 
-  def methodSig(method: MethodDescriptor, t: String => String) = {
+  private[this] def methodSig(method: MethodDescriptor, t: String => String) = {
     s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}): ${t(method.getOutputType.scalaTypeName)}"
   }
 
