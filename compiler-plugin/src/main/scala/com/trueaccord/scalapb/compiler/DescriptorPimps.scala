@@ -271,7 +271,7 @@ trait DescriptorPimps {
       }
 
     def fullJavaName(fullName: String) = {
-      javaFullOuterClassName + "." + stripPackageName(fullName).asSymbol
+      javaFullOuterClassName + "." + stripPackageName(fullName)
     }
 
     def fileDescriptorObjectName = snakeCaseToCamelCase(file.getName, upperInitial = true)
