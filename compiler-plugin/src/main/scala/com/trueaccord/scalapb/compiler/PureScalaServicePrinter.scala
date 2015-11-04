@@ -21,9 +21,17 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
   private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
+  private[this] def observer(typeParam: String): String = s"io.grpc.stub.StreamObserver[$typeParam]"
 
-  private[this] def methodSig(method: MethodDescriptor, t: String => String) = {
-    s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}): ${t(method.getOutputType.scalaTypeName)}"
+  private[this] def methodSig(method: MethodDescriptor, t: String => String = identity[String]): String = {
+    method.streamType match {
+      case StreamType.Unary =>
+        s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}): ${t(method.getOutputType.scalaTypeName)}"
+      case StreamType.ServerStreaming =>
+        s"def ${methodName(method)}(request: ${method.getInputType.scalaTypeName}, observer: ${observer(method.getOutputType.scalaTypeName)}): Unit"
+      case StreamType.ClientStreaming | StreamType.Bidirectional =>
+        s"def ${methodName(method)}(observer: ${observer(method.getOutputType.scalaTypeName)}): ${observer(method.getInputType.scalaTypeName)}"
+    }
   }
 
   private[this] def base: Printer = {
@@ -72,13 +80,28 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] val blockingClientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
-      Printer{ p =>
-        p.add(
-          "override " + methodSig(m, identity) + " = {"
-        ).add(
-          s"""  ${m.getOutputType.scalaTypeName}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
-          "}"
-        )
+      m.streamType match {
+        case StreamType.Unary =>
+          Printer{ p =>
+            p.add(
+              "override " + methodSig(m, identity) + " = {"
+            ).add(
+              s"""  ${m.getOutputType.scalaTypeName}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
+              "}"
+            )
+          }
+        case StreamType.ServerStreaming =>
+          Printer{ p =>
+            p.add(
+              "override " + methodSig(m, identity) + " = { ??? }"
+            )
+          }
+        case StreamType.ClientStreaming | StreamType.Bidirectional =>
+          Printer{ p =>
+            p.add(
+              "override " + methodSig(m, identity) + " = { ??? }"
+            )
+          }
       }
     }
 
@@ -113,13 +136,34 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] val asyncClientImpl: Printer = { p =>
     val methods = service.getMethods.asScala.map{ m =>
-      Printer{ p =>
-        p.add(
-          "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
-        ).add(
-          s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.getOutputType.scalaTypeName}.fromJavaProto(_))""",
-          "}"
-        )
+      m.streamType match {
+        case StreamType.Unary =>
+          Printer { p =>
+            p.add(
+              "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
+            ).add(
+              s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.getOutputType.scalaTypeName}.fromJavaProto(_))""",
+              "}"
+            )
+          }
+        case StreamType.ClientStreaming =>
+          Printer { p =>
+            p.add(
+              "override " + methodSig(m) + " = { ???"
+            ).add("}")
+          }
+        case StreamType.ServerStreaming =>
+          Printer { p =>
+            p.add(
+              "override " + methodSig(m) + " = { ???"
+            ).add("}")
+          }
+        case StreamType.Bidirectional =>
+          Printer { p =>
+            p.add(
+              "override " + methodSig(m) + " = { ???"
+            ).add("}")
+          }
       }
     }
 
