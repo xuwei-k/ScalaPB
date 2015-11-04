@@ -56,6 +56,17 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val asyncServerStreamingCall = "io.grpc.stub.ServerCalls.asyncServerStreamingCall"
   private[this] val asyncBidiStreamingCall = "io.grpc.stub.ServerCalls.asyncBidiStreamingCall"
 
+  private implicit class MethodOps(val self: MethodDescriptor) {
+    def streamType: StreamType = {
+      val p = self.toProto
+      (p.getClientStreaming, p.getServerStreaming) match {
+        case (false, false) => StreamType.Unary
+        case (true, false) => StreamType.ClientStreaming
+        case (false, true) => StreamType.ServerStreaming
+        case (true, true) => StreamType.Bidirectional
+      }
+    }
+  }
 
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
 
@@ -136,14 +147,11 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     def marshaller(typeName: String) =
       s"io.grpc.protobuf.ProtoUtils.marshaller($typeName.getDefaultInstance)"
 
-    val methodType = {
-      val p = method.toProto
-      (p.getClientStreaming, p.getServerStreaming) match {
-        case (false, false) => "UNARY"
-        case (true, false) => "CLIENT_STREAMING"
-        case (false, true) => "SERVER_STREAMING"
-        case (true, true) => "BIDI_STREAMING"
-      }
+    val methodType = method.streamType match {
+      case StreamType.Unary => "UNARY"
+      case StreamType.ClientStreaming => "CLIENT_STREAMING"
+      case StreamType.ServerStreaming => "SERVER_STREAMING"
+      case StreamType.Bidirectional => "BIDI_STREAMING"
     }
 
 s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
@@ -163,18 +171,15 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
   private[this] def createMethod(method: MethodDescriptor) = {
     val javaIn = method.getInputType.javaTypeName
     val javaOut = method.getOutputType.javaTypeName
-    val serverMethod = {
-      val p = method.toProto
-      (p.getClientStreaming, p.getServerStreaming) match {
-        case (false, false) =>
-          s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
-        case (true, false) =>
-          s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
-        case (false, true) =>
-          s"io.grpc.stub.ServerCalls.ServerStreamingMethod[$javaIn, $javaOut]"
-        case (true, true) =>
-          s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
-      }
+    val serverMethod = method.streamType match {
+      case StreamType.Unary =>
+        s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
+      case StreamType.ClientStreaming =>
+        s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
+      case StreamType.ServerStreaming =>
+        s"io.grpc.stub.ServerCalls.ServerStreamingMethod[$javaIn, $javaOut]"
+      case StreamType.Bidirectional =>
+        s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
     }
 
     val executionContext = "executionContext"
@@ -200,14 +205,11 @@ s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionCon
     val executionContext = "executionContext"
     val methods = service.getMethods.asScala.map { m =>
 
-      val call = {
-        val p = m.toProto
-        (p.getClientStreaming, p.getServerStreaming) match {
-          case (false, false) => asyncUnaryCall
-          case (true, false) => asyncClientStreamingCall
-          case (false, true) => asyncServerStreamingCall
-          case (true, true) => asyncBidiStreamingCall
-        }
+      val call = m.streamType match {
+        case StreamType.Unary => asyncUnaryCall
+        case StreamType.ClientStreaming => asyncClientStreamingCall
+        case StreamType.ServerStreaming => asyncServerStreamingCall
+        case StreamType.Bidirectional => asyncBidiStreamingCall
       }
 
 s""".addMethod(
