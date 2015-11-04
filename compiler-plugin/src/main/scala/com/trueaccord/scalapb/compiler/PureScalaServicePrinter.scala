@@ -48,8 +48,13 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
-  private[this] val asyncUnaryCall = "io.grpc.stub.ServerCalls.asyncUnaryCall"
   private[this] val abstractStub = "io.grpc.stub.AbstractStub"
+
+
+  private[this] val asyncUnaryCall = "io.grpc.stub.ServerCalls.asyncUnaryCall"
+  private[this] val asyncClientStreamingCall = "io.grpc.stub.ServerCalls.asyncClientStreamingCall"
+  private[this] val asyncServerStreamingCall = "io.grpc.stub.ServerCalls.asyncServerStreamingCall"
+  private[this] val asyncBidiStreamingCall = "io.grpc.stub.ServerCalls.asyncBidiStreamingCall"
 
 
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
@@ -181,9 +186,20 @@ s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionCon
   private[this] val bindService = {
     val executionContext = "executionContext"
     val methods = service.getMethods.asScala.map { m =>
+
+      val call = {
+        val p = m.toProto
+        (p.getClientStreaming, p.getServerStreaming) match {
+          case (false, false) => asyncUnaryCall
+          case (true, false) => asyncClientStreamingCall
+          case (false, true) => asyncServerStreamingCall
+          case (true, true) => asyncBidiStreamingCall
+        }
+      }
+
 s""".addMethod(
       ${methodDescriptorName(m)},
-      $asyncUnaryCall(
+      $call(
         ${unaryMethodName(m)}(service, $executionContext)
       )
     )"""
