@@ -106,11 +106,20 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
               s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request), $contramapObserver(observer)(${m.getOutputType.scalaTypeName}.fromJavaProto))"
             ).add("}")
           }
-        case StreamType.ClientStreaming | StreamType.Bidirectional =>
+        case streamType =>
+          val call = if(streamType == StreamType.ClientStreaming){
+            clientCalls.clientStreaming
+          }else{
+            clientCalls.bidiStreaming
+          }
           Printer{ p =>
             p.add(
-              "override " + methodSig(m) + " = { ??? }"
-            )
+              "override " + methodSig(m) + " = {"
+            ).indent.add(
+              s"$contramapObserver("
+            ).indent.add(
+              s"$call(channel.newCall(${methodDescriptorName(m)}, options), $contramapObserver(observer)(${m.getOutputType.scalaTypeName}.fromJavaProto)))(${m.getInputType.scalaTypeName}.toJavaProto"
+            ).outdent.add(")").outdent.add("}")
           }
       }
     }
