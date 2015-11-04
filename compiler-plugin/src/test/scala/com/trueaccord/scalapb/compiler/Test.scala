@@ -58,33 +58,9 @@ class Test extends FunSpec {
     it("test") {
       sbt.IO.withTemporaryDirectory{ inputDir =>
         sbt.IO.withTemporaryDirectory{ outDir =>
-          val inputProto: File = inputDir / "sample1.proto"
-          val packageName = "com.example"
-          val input = s"""
-          syntax = "proto3";
-
-          package $packageName;
-
-          import "scalapb/scalapb.proto";
-
-          message Req1 {
-            string a = 1;
-          }
-          message Res1 {}
-
-          message match {}
-          message yield {}
-
-          service Service1 {
-            rpc helloWorld (Req1) returns (Res1) {}
-            rpc for (yield) returns (match) {}
-          }
-
-          service case {};
-          service macro {
-            rpc for (yield) returns (match) {}
-          }
-          """
+          val protoFileName = "route_guide.proto"
+          val inputProto: File = inputDir / protoFileName
+          val input = sbt.IO.readStream(this.getClass.getResourceAsStream("/" + protoFileName))
           Files.write(inputProto.toPath, java.util.Collections.singletonList(input))
           val args: Array[String] = (inputDir :: protoDirs).map("-I" + _).toArray ++ Array[String](
             "--scala_out=java_conversions:" + outDir.getAbsolutePath,
