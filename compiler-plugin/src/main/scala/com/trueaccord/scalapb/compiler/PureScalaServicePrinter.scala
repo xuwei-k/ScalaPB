@@ -160,15 +160,28 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
   private[this] def unaryMethodName(method: MethodDescriptor) =
     methodName0(method) + "UnaryMethod"
 
-  private[this] def createUnaryMethod(method: MethodDescriptor) = {
+  private[this] def createMethod(method: MethodDescriptor) = {
     val javaIn = method.getInputType.javaTypeName
     val javaOut = method.getOutputType.javaTypeName
-    val unaryMethod = s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
+    val serverMethod = {
+      val p = method.toProto
+      (p.getClientStreaming, p.getServerStreaming) match {
+        case (false, false) =>
+          s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
+        case (true, false) =>
+          s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
+        case (false, true) =>
+          s"io.grpc.stub.ServerCalls.ServerStreamingMethod[$javaIn, $javaOut]"
+        case (true, true) =>
+          s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
+      }
+    }
+
     val executionContext = "executionContext"
 
     val serviceImpl = "serviceImpl"
-s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $unaryMethod = {
-    new $unaryMethod {
+s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverMethod = {
+    new $serverMethod {
       override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
         $serviceImpl.${methodName(method)}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
           case scala.util.Success(value) =>
@@ -222,7 +235,7 @@ s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent
       "",
       s"object $objectName {"
     ).seq(
-      service.getMethods.asScala.map(createUnaryMethod)
+      service.getMethods.asScala.map(createMethod)
     ).seq(
       methodDescriptors
     ).ln.withIndent(
