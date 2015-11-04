@@ -165,27 +165,27 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
 
   private[this] val methodDescriptors: Seq[String] = service.getMethods.asScala.map(methodDescriptor)
 
-  private[this] def unaryMethodName(method: MethodDescriptor) =
-    methodName0(method) + "UnaryMethod"
+  private[this] def callMethodName(method: MethodDescriptor) =
+    methodName0(method) + "Method"
 
-  private[this] def createMethod(method: MethodDescriptor) = {
-    val javaIn = method.getInputType.javaTypeName
-    val javaOut = method.getOutputType.javaTypeName
-    val serverMethod = method.streamType match {
+  private[this] def callMethod(method: MethodDescriptor) =
+    method.streamType match {
       case StreamType.Unary =>
-        s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
-      case StreamType.ClientStreaming =>
-        s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
-      case StreamType.ServerStreaming =>
-        s"io.grpc.stub.ServerCalls.ServerStreamingMethod[$javaIn, $javaOut]"
-      case StreamType.Bidirectional =>
-        s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
+        s"${callMethodName(method)}(service, executionContext)"
+      case _ =>
+        s"${callMethodName(method)}(service)"
     }
 
+  private[this] def createMethod(method: MethodDescriptor): String = {
+    val javaIn = method.getInputType.javaTypeName
+    val javaOut = method.getOutputType.javaTypeName
     val executionContext = "executionContext"
-
+    val name = callMethodName(method)
     val serviceImpl = "serviceImpl"
-s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverMethod = {
+    method.streamType match {
+      case StreamType.Unary =>
+        val serverMethod = s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
+s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverMethod = {
     new $serverMethod {
       override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
         $serviceImpl.${methodName(method)}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
@@ -199,6 +199,37 @@ s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionCon
       }
     }
   }"""
+      case StreamType.ServerStreaming =>
+        val serverMethod = s"io.grpc.stub.ServerCalls.ServerStreamingMethod[$javaIn, $javaOut]"
+
+        s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
+    new $serverMethod {
+      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
+        ???
+      }
+    }
+  }"""
+      case StreamType.ClientStreaming =>
+        val serverMethod = s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
+
+        s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
+    new $serverMethod {
+      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] = {
+        ???
+      }
+    }
+  }"""
+      case StreamType.Bidirectional =>
+        val serverMethod = s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
+
+        s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
+    new $serverMethod {
+      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] = {
+        ???
+      }
+    }
+  }"""
+    }
   }
 
   private[this] val bindService = {
@@ -215,7 +246,7 @@ s"""  def ${unaryMethodName(method)}($serviceImpl: $serviceFuture, $executionCon
 s""".addMethod(
       ${methodDescriptorName(m)},
       $call(
-        ${unaryMethodName(m)}(service, $executionContext)
+        ${callMethod(m)}
       )
     )"""
     }.mkString
