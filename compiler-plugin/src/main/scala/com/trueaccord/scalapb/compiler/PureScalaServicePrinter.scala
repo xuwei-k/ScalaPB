@@ -58,11 +58,19 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
   private[this] val abstractStub = "io.grpc.stub.AbstractStub"
 
+  private[this] object serverCalls {
+    val unary = "io.grpc.stub.ServerCalls.asyncUnaryCall"
+    val clientStreaming = "io.grpc.stub.ServerCalls.asyncClientStreamingCall"
+    val serverStreaming = "io.grpc.stub.ServerCalls.asyncServerStreamingCall"
+    val bidiStreaming = "io.grpc.stub.ServerCalls.asyncBidiStreamingCall"
+  }
 
-  private[this] val asyncUnaryCall = "io.grpc.stub.ServerCalls.asyncUnaryCall"
-  private[this] val asyncClientStreamingCall = "io.grpc.stub.ServerCalls.asyncClientStreamingCall"
-  private[this] val asyncServerStreamingCall = "io.grpc.stub.ServerCalls.asyncServerStreamingCall"
-  private[this] val asyncBidiStreamingCall = "io.grpc.stub.ServerCalls.asyncBidiStreamingCall"
+  private[this] object clientCalls {
+    val unary = "io.grpc.stub.ClientCalls.asyncUnaryCall"
+    val clientStreaming = "io.grpc.stub.ClientCalls.asyncClientStreamingCall"
+    val serverStreaming = "io.grpc.stub.ClientCalls.asyncServerStreamingCall"
+    val bidiStreaming = "io.grpc.stub.ClientCalls.asyncBidiStreamingCall"
+  }
 
   private implicit class MethodOps(val self: MethodDescriptor) {
     def streamType: StreamType = {
@@ -93,13 +101,15 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
         case StreamType.ServerStreaming =>
           Printer{ p =>
             p.add(
-              "override " + methodSig(m, identity) + " = { ??? }"
-            )
+              "override " + methodSig(m) + " = {"
+            ).addI(
+              s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request), $contramapObserver(observer)(${m.getOutputType.scalaTypeName}.fromJavaProto))"
+            ).add("}")
           }
         case StreamType.ClientStreaming | StreamType.Bidirectional =>
           Printer{ p =>
             p.add(
-              "override " + methodSig(m, identity) + " = { ??? }"
+              "override " + methodSig(m) + " = { ??? }"
             )
           }
       }
@@ -118,6 +128,14 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
       "}"
     )
   }
+
+  private[this] val contramapObserver = "contramapObserver"
+  private[this] val contramapObserverImpl = s"""private[this] def $contramapObserver[A, B](observer: ${observer("A")})(f: B => A): ${observer("B")} =
+  new ${observer("B")} {
+    override def onNext(value: B): Unit = observer.onNext(f(value))
+    override def onError(t: Throwable): Unit = observer.onError(t)
+    override def onCompleted(): Unit = observer.onCompleted()
+  }"""
 
   private[this] val guavaFuture2ScalaFuture = "guavaFuture2ScalaFuture"
 
@@ -281,10 +299,10 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
     val methods = service.getMethods.asScala.map { m =>
 
       val call = m.streamType match {
-        case StreamType.Unary => asyncUnaryCall
-        case StreamType.ClientStreaming => asyncClientStreamingCall
-        case StreamType.ServerStreaming => asyncServerStreamingCall
-        case StreamType.Bidirectional => asyncBidiStreamingCall
+        case StreamType.Unary => serverCalls.unary
+        case StreamType.ClientStreaming => serverCalls.clientStreaming
+        case StreamType.ServerStreaming => serverCalls.serverStreaming
+        case StreamType.Bidirectional => serverCalls.bidiStreaming
       }
 
 s""".addMethod(
@@ -324,6 +342,7 @@ s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent
     ).ln.addI(
       bindService,
       guavaFuture2ScalaFutureImpl,
+      contramapObserverImpl,
       s"def blockingClient(channel: $channel): $serviceBlocking = new $blockingClientName(channel)",
       s"def futureClient(channel: $channel): $serviceFuture = new $asyncClientName(channel)"
     ).add(
