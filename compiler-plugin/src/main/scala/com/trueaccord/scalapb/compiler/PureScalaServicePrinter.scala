@@ -131,10 +131,19 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
     def marshaller(typeName: String) =
       s"io.grpc.protobuf.ProtoUtils.marshaller($typeName.getDefaultInstance)"
 
+    val methodType = {
+      val p = method.toProto
+      (p.getClientStreaming, p.getServerStreaming) match {
+        case (false, false) => "UNARY"
+        case (true, false) => "CLIENT_STREAMING"
+        case (false, true) => "SERVER_STREAMING"
+        case (true, true) => "BIDI_STREAMING"
+      }
+    }
 
 s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
     io.grpc.MethodDescriptor.create(
-      io.grpc.MethodDescriptor.MethodType.UNARY,
+      io.grpc.MethodDescriptor.MethodType.$methodType,
       io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${method.getName}"),
       ${marshaller(inJava)},
       ${marshaller(outJava)}
