@@ -1,7 +1,6 @@
 import java.util.concurrent.TimeUnit
 
 import com.trueaccord.pb.Service1Impl
-import com.trueaccord.proto.e2e.Service1Grpc
 import com.trueaccord.proto.e2e.service._
 import io.grpc.netty.{NegotiationType, NettyChannelBuilder, NettyServerBuilder}
 import io.grpc.{ManagedChannel, ServerServiceDefinition}
