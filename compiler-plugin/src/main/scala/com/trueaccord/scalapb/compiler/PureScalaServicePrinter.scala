@@ -278,24 +278,17 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
         $serviceImpl.${methodName0(method)}(${method.scalaIn}.fromJavaProto(request), $contramapObserver(observer)(${method.scalaOut}.toJavaProto))
     }
   }"""
-      case StreamType.ClientStreaming =>
-        val serverMethod = s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
+      case _ =>
+        val serverMethod = if(method.streamType == StreamType.ClientStreaming) {
+          s"io.grpc.stub.ServerCalls.ClientStreamingMethod[$javaIn, $javaOut]"
+        } else {
+          s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
+        }
 
         s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
     new $serverMethod {
-      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] = {
-        ???
-      }
-    }
-  }"""
-      case StreamType.Bidirectional =>
-        val serverMethod = s"io.grpc.stub.ServerCalls.BidiStreamingMethod[$javaIn, $javaOut]"
-
-        s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
-    new $serverMethod {
-      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] = {
-        ???
-      }
+      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] =
+        $contramapObserver($serviceImpl.${methodName0(method)}($contramapObserver(observer)(${method.scalaOut}.toJavaProto)))(${method.scalaIn}.fromJavaProto)
     }
   }"""
     }
