@@ -45,6 +45,11 @@ trait DescriptorPimps {
     b.toString
   }
 
+  implicit final class MethodDescriptorPimp(self: MethodDescriptor) {
+    def scalaOut: String = self.getOutputType.scalaTypeName
+    def scalaIn: String = self.getInputType.scalaTypeName
+  }
+
   implicit class FieldDescriptorPimp(val fd: FieldDescriptor) {
     def containingOneOf: Option[OneofDescriptor] = Option(fd.getContainingOneof)
 
