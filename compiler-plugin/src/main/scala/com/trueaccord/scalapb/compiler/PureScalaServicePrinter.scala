@@ -86,43 +86,49 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
 
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
 
-  private[this] val blockingClientImpl: Printer = { p =>
-    val methods = service.getMethods.asScala.map{ m =>
-      m.streamType match {
-        case StreamType.Unary =>
-          Printer{ p =>
-            p.add(
-              "override " + methodSig(m, identity) + " = {"
-            ).add(
-              s"""  ${m.scalaOut}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
-              "}"
-            )
-          }
-        case StreamType.ServerStreaming =>
-          Printer{ p =>
-            p.add(
-              "override " + methodSig(m) + " = {"
-            ).addI(
-              s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto))"
-            ).add("}")
-          }
-        case streamType =>
-          val call = if(streamType == StreamType.ClientStreaming){
-            clientCalls.clientStreaming
-          }else{
-            clientCalls.bidiStreaming
-          }
-          Printer{ p =>
-            p.add(
-              "override " + methodSig(m) + " = {"
-            ).indent.add(
-              s"$contramapObserver("
-            ).indent.add(
-              s"$call(channel.newCall(${methodDescriptorName(m)}, options), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto)))(${m.getInputType.scalaTypeName}.toJavaProto"
-            ).outdent.add(")").outdent.add("}")
-          }
-      }
+  private[this] def clientMethodImpl(m: MethodDescriptor, blocking: Boolean) = Printer{ p =>
+    m.streamType match {
+      case StreamType.Unary =>
+        if(blocking) {
+          p.add(
+            "override " + methodSig(m, identity) + " = {"
+          ).add(
+            s"""  ${m.scalaOut}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
+            "}"
+          )
+        } else {
+          p.add(
+            "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
+          ).add(
+            s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.scalaOut}.fromJavaProto(_))""",
+            "}"
+          )
+        }
+      case StreamType.ServerStreaming =>
+        p.add(
+          "override " + methodSig(m) + " = {"
+        ).addI(
+          s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto))"
+        ).add("}")
+      case streamType =>
+        val call = if (streamType == StreamType.ClientStreaming) {
+          clientCalls.clientStreaming
+        } else {
+          clientCalls.bidiStreaming
+        }
+
+        p.add(
+          "override " + methodSig(m) + " = {"
+        ).indent.add(
+          s"$contramapObserver("
+        ).indent.add(
+          s"$call(channel.newCall(${methodDescriptorName(m)}, options), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto)))(${m.getInputType.scalaTypeName}.toJavaProto"
+        ).outdent.add(")").outdent.add("}")
     }
+  }
+
+  private[this] val blockingClientImpl: Printer = { p =>
+    val methods = service.getMethods.asScala.map(clientMethodImpl(_, true))
 
     val build =
       s"  override def build(channel: $channel, options: $callOptions): $blockingClientName = new $blockingClientName(channel, options)"
@@ -162,37 +168,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val asyncClientName = service.getName + "AsyncClientImpl"
 
   private[this] val asyncClientImpl: Printer = { p =>
-    val methods = service.getMethods.asScala.map{ m =>
-      m.streamType match {
-        case StreamType.Unary =>
-          Printer { p =>
-            p.add(
-              "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
-            ).add(
-              s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.scalaOut}.fromJavaProto(_))""",
-              "}"
-            )
-          }
-        case StreamType.ClientStreaming =>
-          Printer { p =>
-            p.add(
-              "override " + methodSig(m) + " = { ???"
-            ).add("}")
-          }
-        case StreamType.ServerStreaming =>
-          Printer { p =>
-            p.add(
-              "override " + methodSig(m) + " = { ???"
-            ).add("}")
-          }
-        case StreamType.Bidirectional =>
-          Printer { p =>
-            p.add(
-              "override " + methodSig(m) + " = { ???"
-            ).add("}")
-          }
-      }
-    }
+    val methods = service.getMethods.asScala.map(clientMethodImpl(_, false))
 
     val build =
       s"  override def build(channel: $channel, options: $callOptions): $asyncClientName = new $asyncClientName(channel, options)"
