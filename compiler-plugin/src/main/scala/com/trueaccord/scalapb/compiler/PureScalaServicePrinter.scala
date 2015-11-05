@@ -258,7 +258,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
         val serverMethod = s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
 s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverMethod = {
     new $serverMethod {
-      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
+      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit =
         $serviceImpl.${methodName(method)}(${method.getInputType.scalaTypeName}.fromJavaProto(request)).onComplete {
           case scala.util.Success(value) =>
             observer.onNext(${method.getOutputType.scalaTypeName}.toJavaProto(value))
@@ -267,7 +267,6 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
             observer.onError(error)
             observer.onCompleted()
         }($executionContext)
-      }
     }
   }"""
       case StreamType.ServerStreaming =>
@@ -275,9 +274,8 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
 
         s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
     new $serverMethod {
-      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit = {
-        ???
-      }
+      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit =
+        $serviceImpl.${methodName0(method)}(${method.getInputType.scalaTypeName}.fromJavaProto(request), $contramapObserver(observer)(${method.getOutputType.scalaTypeName}.toJavaProto))
     }
   }"""
       case StreamType.ClientStreaming =>
