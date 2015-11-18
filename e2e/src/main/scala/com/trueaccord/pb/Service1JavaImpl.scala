@@ -2,22 +2,17 @@ package com.trueaccord.pb
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.trueaccord.proto.e2e.service.Service1Grpc.Service1
-import com.trueaccord.proto.e2e.service._
+import com.trueaccord.proto.e2e.Service._
+import com.trueaccord.proto.e2e.Service1Grpc._
 import io.grpc.stub.StreamObserver
 
-import scala.concurrent.Future
+class Service1JavaImpl extends Service1{
 
-object Service1Impl {
-
-  val method3Limit = 50
-
-}
-
-class Service1Impl extends Service1[Future]{
-
-  override def method1(request: Req1): Future[Res1] =
-    Future.successful(Res1(length = request.request.length))
+  override def method1(request: Req1, observer: StreamObserver[Res1]): Unit = {
+    val res = Res1.newBuilder.setLength(request.getRequest.length).build()
+    observer.onNext(res)
+    observer.onCompleted()
+  }
 
   override def method2(observer: StreamObserver[Res2]) =
     new StreamObserver[Req2] {
@@ -26,7 +21,8 @@ class Service1Impl extends Service1[Future]{
         observer.onError(e)
 
       override def onCompleted(): Unit = {
-        observer.onNext(Res2(counter.getAndSet(0)))
+        val res = Res2.newBuilder().setCount(counter.getAndSet(0)).build()
+        observer.onNext(res)
       }
 
       override def onNext(v: Req2): Unit = {
@@ -37,9 +33,9 @@ class Service1Impl extends Service1[Future]{
   private[this] var method3Counter = 0
 
   override def method3(request: Req3, observer: StreamObserver[Res3]): Unit = synchronized{
-    method3Counter += request.num
-    if(method3Counter > Service1Impl.method3Limit){
-      observer.onNext(Res3())
+    method3Counter += request.getNum
+    if(method3Counter > Service1ScalaImpl.method3Limit){
+      observer.onNext(Res3.getDefaultInstance)
       observer.onCompleted()
     }
   }
@@ -51,4 +47,5 @@ class Service1Impl extends Service1[Future]{
       override def onCompleted(): Unit = {}
       override def onNext(request: Req4): Unit = {}
     }
+
 }
