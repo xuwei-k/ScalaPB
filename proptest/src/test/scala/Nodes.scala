@@ -1,7 +1,7 @@
 
 import com.trueaccord.scalapb.Scalapb.ScalaPbOptions
 import com.trueaccord.scalapb.compiler
-import com.trueaccord.scalapb.compiler.{FunctionalPrinter, FPrintable}
+import com.trueaccord.scalapb.compiler.{StreamType, FunctionalPrinter, FPrintable}
 
 import scala.collection.mutable
 import scala.util.Try
@@ -107,9 +107,20 @@ object Nodes {
     lazy val filesById: Map[Int, FileNode] = files.map(f => (f.fileId, f)).toMap
   }
 
-  final case class MethodNode(name: String, request: MessageNode, response: MessageNode) {
-    def print(printer: FunctionalPrinter): FunctionalPrinter =
-      printer.add(s"rpc $name (${request.name}) returns (${response.name}) {};")
+  final case class MethodNode(name: String, request: MessageNode, response: MessageNode, streamType: StreamType) {
+    def print(printer: FunctionalPrinter): FunctionalPrinter = {
+      val method = streamType match {
+        case StreamType.Unary =>
+          s"rpc $name (${request.name}) returns (${response.name}) {};"
+        case StreamType.ClientStreaming =>
+          s"rpc $name (stream ${request.name}) returns (${response.name}) {};"
+        case StreamType.ServerStreaming =>
+          s"rpc $name (${request.name}) returns (stream ${response.name}) {};"
+        case StreamType.Bidirectional =>
+          s"rpc $name (stream ${request.name}) returns (stream ${response.name}) {};"
+      }
+      printer.add(method)
+    }
   }
 
   final case class ServiceNode(name: String, methods: Seq[MethodNode]) {

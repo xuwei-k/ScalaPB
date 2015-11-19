@@ -1,6 +1,7 @@
 import GenUtils._
 import GenTypes.{FieldOptions, ProtoType, FieldModifier}
 import com.trueaccord.scalapb.Scalapb.ScalaPbOptions
+import com.trueaccord.scalapb.compiler.StreamType
 import org.scalacheck.{Arbitrary, Gen}
 
 object GraphGen {
@@ -138,6 +139,10 @@ object GraphGen {
     (Some(b.build), state)
   }
 
+  val genStreamType: Gen[StreamType] = Gen.oneOf(
+    StreamType.Unary, StreamType.ClientStreaming, StreamType.ServerStreaming, StreamType.Bidirectional
+  )
+
   def genService(messages: Seq[MessageNode])(state: State): Gen[(ServiceNode, State)] = for{
     (methods, state) <- listWithStatefulGen(state , maxSize = 3)(genMethod(messages))
     (name, state) <- state.generateName
@@ -146,8 +151,9 @@ object GraphGen {
   def genMethod(messages: Seq[MessageNode])(state: State): Gen[(MethodNode, State)] = for{
     req <- Gen.oneOf(messages)
     res <- Gen.oneOf(messages)
+    stream <- genStreamType
     (name, state) <- state.generateName
-  } yield MethodNode(name, req, res) -> state
+  } yield MethodNode(name, req, res, stream) -> state
 
   def genFileNode(state: State): Gen[(FileNode, State)] = sized {
     s =>
