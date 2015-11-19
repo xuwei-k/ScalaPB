@@ -122,11 +122,11 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
 
   private[this] val contramapObserver = "contramapObserver"
   private[this] val contramapObserverImpl = s"""private[this] def $contramapObserver[A, B](observer: ${observer("A")})(f: B => A): ${observer("B")} =
-  new ${observer("B")} {
-    override def onNext(value: B): Unit = observer.onNext(f(value))
-    override def onError(t: Throwable): Unit = observer.onError(t)
-    override def onCompleted(): Unit = observer.onCompleted()
-  }"""
+    new ${observer("B")} {
+      override def onNext(value: B): Unit = observer.onNext(f(value))
+      override def onError(t: Throwable): Unit = observer.onError(t)
+      override def onCompleted(): Unit = observer.onCompleted()
+    }"""
 
   private[this] val guavaFuture2ScalaFuture = "guavaFuture2ScalaFuture"
 
