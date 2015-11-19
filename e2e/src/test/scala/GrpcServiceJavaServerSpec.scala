@@ -23,7 +23,7 @@ class GrpcServiceJavaServerSpec extends GrpcServiceSpecBase {
       withJavaServer { channel =>
         val client = Service1GrpcScala.futureClient(channel)
         val string = randomString()
-        assert(Await.result(client.method1(Req1(string)), 3.seconds).length === string.length)
+        assert(Await.result(client.method1(Req1(string)), 2.seconds).length === string.length)
       }
     }
 
@@ -38,11 +38,11 @@ class GrpcServiceJavaServerSpec extends GrpcServiceSpecBase {
         }
 
         intercept[TimeoutException]{
-          Await.result(future, 3.seconds)
+          Await.result(future, 2.seconds)
         }
 
         requestObserver.onCompleted()
-        assert(Await.result(future, 3.seconds).count === n)
+        assert(Await.result(future, 2.seconds).count === n)
       }
     }
 
@@ -58,11 +58,25 @@ class GrpcServiceJavaServerSpec extends GrpcServiceSpecBase {
         }
 
         intercept[TimeoutException]{
-          Await.result(future, 3.seconds)
+          Await.result(future, 2.seconds)
         }
 
         client.method3(Req3(1000), observer)
-        Await.result(future, 3.seconds)
+        Await.result(future, 2.seconds)
+      }
+    }
+
+    it("method4") {
+      withJavaServer { channel =>
+        val client = Service1GrpcScala.futureClient(channel)
+        val (responseObserver, future) = getObserverAndFuture[Res4]
+        val requestObserver = client.method4(responseObserver)
+        intercept[TimeoutException]{
+          Await.result(future, 2.seconds)
+        }
+        val request = Req4(a = Random.nextInt())
+        requestObserver.onNext(request)
+        assert(Await.result(future, 2.seconds).b === (request.a * 2))
       }
     }
   }

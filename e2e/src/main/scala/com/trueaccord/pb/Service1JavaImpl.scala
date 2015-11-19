@@ -40,12 +40,14 @@ class Service1JavaImpl extends Service1{
     }
   }
 
-  // TODO bidirectional streaming sample and test
   override def method4(observer: StreamObserver[Res4]): StreamObserver[Req4] =
     new StreamObserver[Req4] {
       override def onError(e: Throwable): Unit = {}
       override def onCompleted(): Unit = {}
-      override def onNext(request: Req4): Unit = {}
+      override def onNext(request: Req4): Unit = {
+        observer.onNext(Res4.newBuilder.setB(request.getA * 2).build())
+        observer.onCompleted()
+      }
     }
 
 }

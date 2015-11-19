@@ -44,11 +44,13 @@ class Service1ScalaImpl extends Service1[Future]{
     }
   }
 
-  // TODO bidirectional streaming sample and test
   override def method4(observer: StreamObserver[Res4]): StreamObserver[Req4] =
     new StreamObserver[Req4] {
       override def onError(e: Throwable): Unit = {}
       override def onCompleted(): Unit = {}
-      override def onNext(request: Req4): Unit = {}
+      override def onNext(request: Req4): Unit = {
+        observer.onNext(Res4(request.a * 2))
+        observer.onCompleted()
+      }
     }
 }

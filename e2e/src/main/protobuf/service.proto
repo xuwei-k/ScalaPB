@@ -21,8 +21,12 @@ message Req3 {
 }
 message Res3 {}
 
-message Req4 {}
-message Res4 {}
+message Req4 {
+  int32 a = 1;
+}
+message Res4 {
+  int32 b = 1;
+}
 
 service Service1 {
   rpc method1(Req1) returns (Res1) {}
