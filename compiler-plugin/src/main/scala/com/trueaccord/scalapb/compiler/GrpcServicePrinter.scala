@@ -3,13 +3,10 @@ package com.trueaccord.scalapb.compiler
 import java.util.Locale
 
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
+import com.trueaccord.scalapb.compiler.FunctionalPrinter.PrinterEndo
 import scala.collection.JavaConverters._
 
 final class GrpcServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
-
-  type Printer = FunctionalPrinter => FunctionalPrinter
-
-  private[this] def Printer(f: Printer) = f
 
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
   private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
@@ -26,10 +23,10 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
     }
   }
 
-  private[this] def base: Printer = {
+  private[this] def base: PrinterEndo = {
     val F = "F[" + (_: String) + "]"
 
-    val methods: Printer = { p =>
+    val methods: PrinterEndo = { p =>
       p.seq(service.getMethods.asScala.map(methodSig(_, F)))
     }
 
@@ -62,35 +59,23 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
     val bidiStreaming = "io.grpc.stub.ClientCalls.asyncBidiStreamingCall"
   }
 
-  private[this] implicit class MethodOps(val self: MethodDescriptor) {
-    def streamType: StreamType = {
-      val p = self.toProto
-      (p.getClientStreaming, p.getServerStreaming) match {
-        case (false, false) => StreamType.Unary
-        case (true, false) => StreamType.ClientStreaming
-        case (false, true) => StreamType.ServerStreaming
-        case (true, true) => StreamType.Bidirectional
-      }
-    }
-  }
-
   private[this] val blockingClientName: String = service.getName + "BlockingClientImpl"
 
-  private[this] def clientMethodImpl(m: MethodDescriptor, blocking: Boolean) = Printer{ p =>
+  private[this] def clientMethodImpl(m: MethodDescriptor, blocking: Boolean) = PrinterEndo{ p =>
     m.streamType match {
       case StreamType.Unary =>
         if(blocking) {
           p.add(
             "override " + methodSig(m, identity) + " = {"
           ).add(
-            s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
+            s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaOut}.toJavaProto(request)))""",
             "}"
           )
         } else {
           p.add(
             "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
           ).add(
-            s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))(${m.scalaOut}.fromJavaProto(_))""",
+            s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaIn}.toJavaProto(request)))(${m.scalaOut}.fromJavaProto(_))""",
             "}"
           )
         }
@@ -98,7 +83,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
         p.add(
           "override " + methodSig(m) + " = {"
         ).addI(
-          s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto))"
+          s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaIn}.toJavaProto(request), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto))"
         ).add("}")
       case streamType =>
         val call = if (streamType == StreamType.ClientStreaming) {
@@ -112,12 +97,12 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
         ).indent.add(
           s"$contramapObserver("
         ).indent.add(
-          s"$call(channel.newCall(${methodDescriptorName(m)}, options), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto)))(${m.getInputType.scalaTypeName}.toJavaProto"
+          s"$call(channel.newCall(${methodDescriptorName(m)}, options), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto)))(${m.scalaIn}.toJavaProto"
         ).outdent.add(")").outdent.add("}")
     }
   }
 
-  private[this] val blockingClientImpl: Printer = { p =>
+  private[this] val blockingClientImpl: PrinterEndo = { p =>
     val methods = service.getMethods.asScala.map(clientMethodImpl(_, true))
 
     val build =
@@ -157,7 +142,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
 
   private[this] val asyncClientName = service.getName + "AsyncClientImpl"
 
-  private[this] val asyncClientImpl: Printer = { p =>
+  private[this] val asyncClientImpl: PrinterEndo = { p =>
     val methods = service.getMethods.asScala.map(clientMethodImpl(_, false))
 
     val build =
@@ -299,13 +284,13 @@ s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent
       service.getMethods.asScala.map(createMethod)
     ).seq(
       methodDescriptors
-    ).ln.withIndent(
+    ).newline.withIndent(
       base,
-      FunctionalPrinter.ln,
+      FunctionalPrinter.newline,
       blockingClientImpl,
-      FunctionalPrinter.ln,
+      FunctionalPrinter.newline,
       asyncClientImpl
-    ).ln.addI(
+    ).newline.addI(
       bindService,
       guavaFuture2ScalaFutureImpl,
       contramapObserverImpl,

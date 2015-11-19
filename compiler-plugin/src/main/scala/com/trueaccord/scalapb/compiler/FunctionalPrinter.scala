@@ -1,18 +1,24 @@
 package com.trueaccord.scalapb.compiler
 
+import com.trueaccord.scalapb.compiler.FunctionalPrinter.PrinterEndo
+
 trait FPrintable {
   def print(printer: FunctionalPrinter): FunctionalPrinter
 }
 
+object PrinterEndo {
+  def apply(endo: PrinterEndo): PrinterEndo = endo
+}
+
 object FunctionalPrinter {
-  val ln: FunctionalPrinter => FunctionalPrinter = _.ln
+  type PrinterEndo = FunctionalPrinter => FunctionalPrinter
+  val newline: PrinterEndo = _.newline
 }
 
 case class FunctionalPrinter(content: List[String] = Nil, indentLevel: Int = 0) {
   val INDENT_SIZE = 2
 
   def seq(s: Seq[String]): FunctionalPrinter = add(s: _*)
-  def seqI(s: Seq[String]): FunctionalPrinter = addI(s: _*)
 
   def add(s: String*): FunctionalPrinter = {
     copy(content = s.map(l => " " * (indentLevel * INDENT_SIZE) + l).reverseIterator.toList ::: content)
@@ -23,8 +29,7 @@ case class FunctionalPrinter(content: List[String] = Nil, indentLevel: Int = 0) 
     this.indent.seq(s).outdent
   }
 
-  /** new line */
-  def ln: FunctionalPrinter = add("")
+  def newline: FunctionalPrinter = add("")
 
   def addM(s: String): FunctionalPrinter =
     add(s.stripMargin.split("\n", -1): _*)

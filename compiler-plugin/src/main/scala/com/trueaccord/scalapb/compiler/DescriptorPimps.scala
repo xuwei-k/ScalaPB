@@ -47,7 +47,18 @@ trait DescriptorPimps {
 
   implicit final class MethodDescriptorPimp(self: MethodDescriptor) {
     def scalaOut: String = self.getOutputType.scalaTypeName
+
     def scalaIn: String = self.getInputType.scalaTypeName
+
+    def streamType: StreamType = {
+      val p = self.toProto
+      (p.getClientStreaming, p.getServerStreaming) match {
+        case (false, false) => StreamType.Unary
+        case (true, false) => StreamType.ClientStreaming
+        case (false, true) => StreamType.ServerStreaming
+        case (true, true) => StreamType.Bidirectional
+      }
+    }
   }
 
   implicit class FieldDescriptorPimp(val fd: FieldDescriptor) {
