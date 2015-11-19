@@ -8,7 +8,7 @@ PB.scalapbVersion in PB.protobufConfig := com.trueaccord.scalapb.Version.scalapb
 
 PB.javaConversions in PB.protobufConfig := true
 
-(PB.runProtoc in PB.protobufConfig) := { args0 =>
+PB.runProtoc in PB.protobufConfig := { args0 =>
   IO.withTemporaryDirectory{ dir =>
     val exe = dir / "grpc.exe"
     java.nio.file.Files.write(exe.toPath, grpcExe.value.get())
@@ -52,5 +52,14 @@ grpcExe := xsbti.SafeLazy{
     println("download from " + u)
     IO.download(url(u), f)
     java.nio.file.Files.readAllBytes(f.toPath)
+  }
+}
+
+PB.protocOptions in PB.protobufConfig ++= {
+  (PB.generatedTargets in PB.protobufConfig).value.find(_._2.endsWith(".scala")) match {
+    case Some(targetForScala) =>
+      Seq(s"--scala_out=grpc:${targetForScala._1.absolutePath}")
+    case None =>
+      Nil
   }
 }

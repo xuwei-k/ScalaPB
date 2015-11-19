@@ -5,19 +5,11 @@ import java.util.Locale
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scala.collection.JavaConverters._
 
-final class PureScalaServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
+final class GrpcServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
 
   type Printer = FunctionalPrinter => FunctionalPrinter
 
   private[this] def Printer(f: Printer) = f
-
-  /**
-   * [[https://github.com/google/protobuf/blob/v3.0.0-beta-1/src/google/protobuf/compiler/java/java_helpers.cc#L224-L227]]
-   * [[https://github.com/grpc/grpc-java/blob/v0.9.0/compiler/src/java_plugin/cpp/java_generator.cpp#L641-L648]]
-   */
-  private[this] val servicePackage = {
-    "package " + service.getFile.scalaPackageName
-  }
 
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
   private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
@@ -55,7 +47,6 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   private[this] val serviceFuture = serviceName("scala.concurrent.Future")
 
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
-  private[this] val blockingUnaryCall = "io.grpc.stub.ClientCalls.blockingUnaryCall"
   private[this] val abstractStub = "io.grpc.stub.AbstractStub"
 
   private[this] object serverCalls {
@@ -66,13 +57,12 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
   }
 
   private[this] object clientCalls {
-    val unary = "io.grpc.stub.ClientCalls.asyncUnaryCall"
     val clientStreaming = "io.grpc.stub.ClientCalls.asyncClientStreamingCall"
     val serverStreaming = "io.grpc.stub.ClientCalls.asyncServerStreamingCall"
     val bidiStreaming = "io.grpc.stub.ClientCalls.asyncBidiStreamingCall"
   }
 
-  private implicit class MethodOps(val self: MethodDescriptor) {
+  private[this] implicit class MethodOps(val self: MethodDescriptor) {
     def streamType: StreamType = {
       val p = self.toProto
       (p.getClientStreaming, p.getServerStreaming) match {
@@ -93,7 +83,7 @@ final class PureScalaServicePrinter(service: ServiceDescriptor, override val par
           p.add(
             "override " + methodSig(m, identity) + " = {"
           ).add(
-            s"""  ${m.scalaOut}.fromJavaProto($blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
+            s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.getInputType.scalaTypeName}.toJavaProto(request)))""",
             "}"
           )
         } else {
@@ -300,7 +290,7 @@ s"""def bindService(service: $serviceFuture, $executionContext: scala.concurrent
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
     printer.add(
-      servicePackage,
+      "package " + service.getFile.scalaPackageName,
       "",
       "import scala.language.higherKinds",
       "",
