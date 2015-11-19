@@ -10,9 +10,9 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
 
   private[this] def methodName0(method: MethodDescriptor): String = snakeCaseToCamelCase(method.getName)
   private[this] def methodName(method: MethodDescriptor): String = methodName0(method).asSymbol
-  private[this] def observer(typeParam: String): String = s"io.grpc.stub.StreamObserver[$typeParam]"
+  private[this] def observer(typeParam: String): String = s"$streamObserver[$typeParam]"
 
-  private[this] def methodSig(method: MethodDescriptor, t: String => String = identity[String]): String = {
+  private[this] def methodSignature(method: MethodDescriptor, t: String => String = identity[String]): String = {
     method.streamType match {
       case StreamType.Unary =>
         s"def ${methodName(method)}(request: ${method.scalaIn}): ${t(method.scalaOut)}"
@@ -27,7 +27,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
     val F = "F[" + (_: String) + "]"
 
     val methods: PrinterEndo = { p =>
-      p.seq(service.getMethods.asScala.map(methodSig(_, F)))
+      p.seq(service.getMethods.asScala.map(methodSignature(_, F)))
     }
 
     { p =>
@@ -45,6 +45,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
 
   private[this] val futureUnaryCall = "io.grpc.stub.ClientCalls.futureUnaryCall"
   private[this] val abstractStub = "io.grpc.stub.AbstractStub"
+  private[this] val streamObserver = "io.grpc.stub.StreamObserver"
 
   private[this] object serverCalls {
     val unary = "io.grpc.stub.ServerCalls.asyncUnaryCall"
@@ -66,14 +67,14 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
       case StreamType.Unary =>
         if(blocking) {
           p.add(
-            "override " + methodSig(m, identity) + " = {"
+            "override " + methodSignature(m, identity) + " = {"
           ).add(
             s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaOut}.toJavaProto(request)))""",
             "}"
           )
         } else {
           p.add(
-            "override " + methodSig(m, "scala.concurrent.Future[" + _ + "]") + " = {"
+            "override " + methodSignature(m, "scala.concurrent.Future[" + _ + "]") + " = {"
           ).add(
             s"""  $guavaFuture2ScalaFuture($futureUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaIn}.toJavaProto(request)))(${m.scalaOut}.fromJavaProto(_))""",
             "}"
@@ -81,7 +82,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
         }
       case StreamType.ServerStreaming =>
         p.add(
-          "override " + methodSig(m) + " = {"
+          "override " + methodSignature(m) + " = {"
         ).addI(
           s"${clientCalls.serverStreaming}(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaIn}.toJavaProto(request), $contramapObserver(observer)(${m.scalaOut}.fromJavaProto))"
         ).add("}")
@@ -93,7 +94,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
         }
 
         p.add(
-          "override " + methodSig(m) + " = {"
+          "override " + methodSignature(m) + " = {"
         ).indent.add(
           s"$contramapObserver("
         ).indent.add(
@@ -176,10 +177,12 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
       case StreamType.Bidirectional => "BIDI_STREAMING"
     }
 
-s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescriptor[$inJava, $outJava] =
-    io.grpc.MethodDescriptor.create(
-      io.grpc.MethodDescriptor.MethodType.$methodType,
-      io.grpc.MethodDescriptor.generateFullMethodName("${service.getFullName}", "${method.getName}"),
+    val grpcMethodDescriptor = "io.grpc.MethodDescriptor"
+
+s"""  private[this] val ${methodDescriptorName(method)}: $grpcMethodDescriptor[$inJava, $outJava] =
+    $grpcMethodDescriptor.create(
+      $grpcMethodDescriptor.MethodType.$methodType,
+      $grpcMethodDescriptor.generateFullMethodName("${service.getFullName}", "${method.getName}"),
       ${marshaller(inJava)},
       ${marshaller(outJava)}
     )"""
@@ -209,7 +212,7 @@ s"""  private[this] val ${methodDescriptorName(method)}: io.grpc.MethodDescripto
         val serverMethod = s"io.grpc.stub.ServerCalls.UnaryMethod[$javaIn, $javaOut]"
 s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurrent.ExecutionContext): $serverMethod = {
     new $serverMethod {
-      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit =
+      override def invoke(request: $javaIn, observer: $streamObserver[$javaOut]): Unit =
         $serviceImpl.${methodName(method)}(${method.scalaIn}.fromJavaProto(request)).onComplete {
           case scala.util.Success(value) =>
             observer.onNext(${method.scalaOut}.toJavaProto(value))
@@ -225,7 +228,7 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
 
         s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
     new $serverMethod {
-      override def invoke(request: $javaIn, observer: io.grpc.stub.StreamObserver[$javaOut]): Unit =
+      override def invoke(request: $javaIn, observer: $streamObserver[$javaOut]): Unit =
         $serviceImpl.${methodName0(method)}(${method.scalaIn}.fromJavaProto(request), $contramapObserver(observer)(${method.scalaOut}.toJavaProto))
     }
   }"""
@@ -238,7 +241,7 @@ s"""  def ${name}($serviceImpl: $serviceFuture, $executionContext: scala.concurr
 
         s"""  def ${name}($serviceImpl: $serviceFuture): $serverMethod = {
     new $serverMethod {
-      override def invoke(observer: io.grpc.stub.StreamObserver[$javaOut]): io.grpc.stub.StreamObserver[$javaIn] =
+      override def invoke(observer: $streamObserver[$javaOut]): $streamObserver[$javaIn] =
         $contramapObserver($serviceImpl.${methodName0(method)}($contramapObserver(observer)(${method.scalaOut}.toJavaProto)))(${method.scalaIn}.fromJavaProto)
     }
   }"""
