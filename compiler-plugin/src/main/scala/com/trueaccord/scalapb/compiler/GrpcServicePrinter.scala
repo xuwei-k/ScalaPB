@@ -69,7 +69,7 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
           p.add(
             "override " + methodSignature(m, identity) + " = {"
           ).add(
-            s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaOut}.toJavaProto(request)))""",
+            s"""  ${m.scalaOut}.fromJavaProto(io.grpc.stub.ClientCalls.blockingUnaryCall(channel.newCall(${methodDescriptorName(m)}, options), ${m.scalaIn}.toJavaProto(request)))""",
             "}"
           )
         } else {

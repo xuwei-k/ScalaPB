@@ -52,6 +52,7 @@ grpcExe := xsbti.SafeLazy{
   }
 }
 
+// TODO add `grpc: SettingKey[Boolean]` to sbt-scalapb
 PB.protocOptions in PB.protobufConfig := {
   val conf = (PB.generatedTargets in PB.protobufConfig).value
   val scalaOpts = conf.find(_._2.endsWith(".scala")) match {
