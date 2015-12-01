@@ -3,6 +3,7 @@ import GenTypes.{FieldOptions, ProtoType, FieldModifier}
 import com.trueaccord.scalapb.Scalapb.ScalaPbOptions
 import com.trueaccord.scalapb.compiler.StreamType
 import org.scalacheck.{Arbitrary, Gen}
+import java.util.Locale
 
 object GraphGen {
   import Nodes._
@@ -14,13 +15,13 @@ object GraphGen {
 
   case class Namespace(names: Set[String], parent: Option[Namespace]) {
     // Adds the given name to the namespace.
-    def add(words: String*) = copy(names = names ++ words.map(_.toLowerCase))
+    def add(words: String*) = copy(names = names ++ words.map(_.toLowerCase(Locale.ENGLISH)))
 
     // Returns a new namespace nested in this one.
     def nest(name: String) =
       Namespace(Set(), parent = Some(add(name)))
 
-    def isNameAvailable(name: String): Boolean = !names.contains(name.toLowerCase) && parent.forall(_.isNameAvailable(name))
+    def isNameAvailable(name: String): Boolean = !names.contains(name.toLowerCase(Locale.ENGLISH)) && parent.forall(_.isNameAvailable(name))
 
     def generateName: Gen[String] = SchemaGenerators.identifier.retryUntil(isNameAvailable)
   }

@@ -7,6 +7,7 @@ import com.trueaccord.scalapb.Scalapb.{FieldOptions, MessageOptions, ScalaPbOpti
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.IndexedSeq
+import java.util.Locale
 
 trait DescriptorPimps {
   def params: GeneratorParams
@@ -116,7 +117,7 @@ trait DescriptorPimps {
 
     def upperScalaName: String = snakeCaseToCamelCase(fd.getName, true)
 
-    def fieldNumberConstantName: String = fd.getName.toUpperCase() + "_FIELD_NUMBER"
+    def fieldNumberConstantName: String = fd.getName.toUpperCase(Locale.ENGLISH) + "_FIELD_NUMBER"
 
     def oneOfTypeName = {
       assert(isInOneof)
