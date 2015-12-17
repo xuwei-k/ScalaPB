@@ -972,6 +972,41 @@ public final class Scalapb {
      */
     com.google.protobuf.ByteString
         getExtendsBytes(int index);
+
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    com.google.protobuf.ProtocolStringList
+        getCompanionExtendsList();
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    int getCompanionExtendsCount();
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    java.lang.String getCompanionExtends(int index);
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getCompanionExtendsBytes(int index);
   }
   /**
    * Protobuf type {@code scalapb.MessageOptions}
@@ -986,6 +1021,7 @@ public final class Scalapb {
     }
     private MessageOptions() {
       extends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      companionExtends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -1024,6 +1060,15 @@ public final class Scalapb {
               extends_.add(bs);
               break;
             }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                companionExtends_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              companionExtends_.add(bs);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1035,6 +1080,9 @@ public final class Scalapb {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           extends_ = extends_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          companionExtends_ = companionExtends_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1097,6 +1145,51 @@ public final class Scalapb {
       return extends_.getByteString(index);
     }
 
+    public static final int COMPANION_EXTENDS_FIELD_NUMBER = 2;
+    private com.google.protobuf.LazyStringList companionExtends_;
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getCompanionExtendsList() {
+      return companionExtends_;
+    }
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    public int getCompanionExtendsCount() {
+      return companionExtends_.size();
+    }
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    public java.lang.String getCompanionExtends(int index) {
+      return companionExtends_.get(index);
+    }
+    /**
+     * <code>repeated string companion_extends = 2;</code>
+     *
+     * <pre>
+     * additional classes and traits to mix in to the case class companion object.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getCompanionExtendsBytes(int index) {
+      return companionExtends_.getByteString(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1111,6 +1204,9 @@ public final class Scalapb {
                         throws java.io.IOException {
       for (int i = 0; i < extends_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 1, extends_.getRaw(i));
+      }
+      for (int i = 0; i < companionExtends_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, companionExtends_.getRaw(i));
       }
       unknownFields.writeTo(output);
     }
@@ -1127,6 +1223,14 @@ public final class Scalapb {
         }
         size += dataSize;
         size += 1 * getExtendsList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < companionExtends_.size(); i++) {
+          dataSize += computeStringSizeNoTag(companionExtends_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getCompanionExtendsList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1242,6 +1346,8 @@ public final class Scalapb {
         super.clear();
         extends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
+        companionExtends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -1270,6 +1376,11 @@ public final class Scalapb {
           bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.extends_ = extends_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          companionExtends_ = companionExtends_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.companionExtends_ = companionExtends_;
         onBuilt();
         return result;
       }
@@ -1292,6 +1403,16 @@ public final class Scalapb {
           } else {
             ensureExtendsIsMutable();
             extends_.addAll(other.extends_);
+          }
+          onChanged();
+        }
+        if (!other.companionExtends_.isEmpty()) {
+          if (companionExtends_.isEmpty()) {
+            companionExtends_ = other.companionExtends_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureCompanionExtendsIsMutable();
+            companionExtends_.addAll(other.companionExtends_);
           }
           onChanged();
         }
@@ -1448,6 +1569,135 @@ public final class Scalapb {
   }
   ensureExtendsIsMutable();
         extends_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList companionExtends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureCompanionExtendsIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          companionExtends_ = new com.google.protobuf.LazyStringArrayList(companionExtends_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getCompanionExtendsList() {
+        return companionExtends_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public int getCompanionExtendsCount() {
+        return companionExtends_.size();
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public java.lang.String getCompanionExtends(int index) {
+        return companionExtends_.get(index);
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getCompanionExtendsBytes(int index) {
+        return companionExtends_.getByteString(index);
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public Builder setCompanionExtends(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureCompanionExtendsIsMutable();
+        companionExtends_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public Builder addCompanionExtends(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureCompanionExtendsIsMutable();
+        companionExtends_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public Builder addAllCompanionExtends(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureCompanionExtendsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, companionExtends_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public Builder clearCompanionExtends() {
+        companionExtends_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string companion_extends = 2;</code>
+       *
+       * <pre>
+       * additional classes and traits to mix in to the case class companion object.
+       * </pre>
+       */
+      public Builder addCompanionExtendsBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureCompanionExtendsIsMutable();
+        companionExtends_.add(value);
         onChanged();
         return this;
       }
@@ -2048,15 +2298,16 @@ public final class Scalapb {
       "\n\025scalapb/scalapb.proto\022\007scalapb\032 google" +
       "/protobuf/descriptor.proto\"L\n\016ScalaPbOpt" +
       "ions\022\024\n\014package_name\030\001 \001(\t\022\024\n\014flat_packa" +
-      "ge\030\002 \001(\010\022\016\n\006import\030\003 \003(\t\"!\n\016MessageOptio" +
-      "ns\022\017\n\007extends\030\001 \003(\t\"\034\n\014FieldOptions\022\014\n\004t" +
-      "ype\030\001 \001(\t:G\n\007options\022\034.google.protobuf.F" +
-      "ileOptions\030\374\007 \001(\0132\027.scalapb.ScalaPbOptio" +
-      "ns:J\n\007message\022\037.google.protobuf.MessageO" +
-      "ptions\030\374\007 \001(\0132\027.scalapb.MessageOptions:D" +
-      "\n\005field\022\035.google.protobuf.FieldOptions\030\374",
-      "\007 \001(\0132\025.scalapb.FieldOptionsB\030\n\026com.true" +
-      "accord.scalapb"
+      "ge\030\002 \001(\010\022\016\n\006import\030\003 \003(\t\"<\n\016MessageOptio" +
+      "ns\022\017\n\007extends\030\001 \003(\t\022\031\n\021companion_extends" +
+      "\030\002 \003(\t\"\034\n\014FieldOptions\022\014\n\004type\030\001 \001(\t:G\n\007" +
+      "options\022\034.google.protobuf.FileOptions\030\374\007" +
+      " \001(\0132\027.scalapb.ScalaPbOptions:J\n\007message" +
+      "\022\037.google.protobuf.MessageOptions\030\374\007 \001(\013" +
+      "2\027.scalapb.MessageOptions:D\n\005field\022\035.goo",
+      "gle.protobuf.FieldOptions\030\374\007 \001(\0132\025.scala" +
+      "pb.FieldOptionsB\030\n\026com.trueaccord.scalap" +
+      "b"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2082,7 +2333,7 @@ public final class Scalapb {
     internal_static_scalapb_MessageOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_scalapb_MessageOptions_descriptor,
-        new java.lang.String[] { "Extends", });
+        new java.lang.String[] { "Extends", "CompanionExtends", });
     internal_static_scalapb_FieldOptions_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_scalapb_FieldOptions_fieldAccessorTable = new

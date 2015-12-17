@@ -21,6 +21,7 @@ val grpcArtifactId = "protoc-gen-grpc-java"
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
   "io.grpc" % "grpc-all" % grpcVersion,
+  "com.typesafe.play" %% "play-json" % "2.4.6",
   "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
   "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.Version.scalapbVersion,
   "com.trueaccord.scalapb" %% "scalapb-runtime" % com.trueaccord.scalapb.Version.scalapbVersion % PB.protobufConfig
