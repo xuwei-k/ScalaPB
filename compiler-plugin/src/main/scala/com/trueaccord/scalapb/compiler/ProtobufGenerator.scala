@@ -778,6 +778,27 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     else fp.add(signature + "throw new MatchError(__field)")
   }
 
+  def generateFromJson(message: Descriptor): FunctionalPrinter => FunctionalPrinter = { p =>
+    val JsonFormat = "_root_.com.google.protobuf.util.JsonFormat"
+    p.add(
+      s"def fromJsonString(json: String): ${message.nameSymbol} = {",
+      s"  val registry = $JsonFormat.TypeRegistry.newBuilder().add(this.descriptor).build()",
+      s"  val parser = $JsonFormat.parser().usingTypeRegistry(registry)",
+      s"  val builder = ${message.javaTypeName}.newBuilder()",
+      s"  parser.merge(json, builder)",
+      s"  ${message.nameSymbol}.fromJavaProto(builder.build())",
+      s"}",
+      "",
+      s"def fromJsonReader(json: java.io.Reader): ${message.nameSymbol} = {",
+      s"  val registry = $JsonFormat.TypeRegistry.newBuilder().add(this.descriptor).build()",
+      s"  val parser = $JsonFormat.parser().usingTypeRegistry(registry)",
+      s"  val builder = ${message.javaTypeName}.newBuilder()",
+      s"  parser.merge(json, builder)",
+      s"  ${message.nameSymbol}.fromJavaProto(builder.build())",
+      s"}"
+    )
+  }
+
   def generateMessageCompanion(message: Descriptor)(printer: FunctionalPrinter): FunctionalPrinter = {
     val className = message.nameSymbol
     val mixins = if (message.javaConversions)
@@ -790,6 +811,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       .when(message.javaConversions)(generateToJavaProto(message))
       .when(message.javaConversions)(generateFromJavaProto(message))
       .when(message.javaConversions)(generateFromAscii(message))
+      .when(message.json)(generateFromJson(message))
       .call(generateFromFieldsMap(message))
       .call(generateDescriptor(message))
       .call(generateMessageCompanionForField(message))
@@ -850,7 +872,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
           _
             .add(s"def $withMethod(__v: ${field.scalaTypeName}): ${message.nameSymbol} = copy(${field.scalaName.asSymbol} = __v)")
         }
-    }.when(params.json && message.javaConversions){
+    }.when(message.json){
       _.add(s"def toJsonString: String = _root_.com.google.protobuf.util.JsonFormat.printer.print(${message.nameSymbol}.toJavaProto(this))")
     }.print(message.getOneofs) {
       case (oneof, printer) =>

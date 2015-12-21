@@ -236,6 +236,8 @@ trait DescriptorPimps {
 
     def javaConversions = params.javaConversions && !isMapEntry
 
+    def json = params.json && !isMapEntry
+
     def isTopLevel = message.getContainingType == null
 
     class MapType {
