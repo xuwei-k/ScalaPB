@@ -85,6 +85,10 @@ trait GeneratedMessage extends Serializable {
   def serializedSize: Int
 }
 
+trait GeneratedMessageJson extends GeneratedMessage {
+  def toJsonString: String
+}
+
 trait Message[A] {
   def mergeFrom(input: CodedInputStream): A
 }
@@ -95,6 +99,12 @@ trait JavaProtoSupport[ScalaPB, JavaPB] {
   def fromJavaProto(javaProto: JavaPB): ScalaPB
 
   def toJavaProto(scalaProto: ScalaPB): JavaPB
+}
+
+trait GeneratedMessageJsonCompanion[A <: GeneratedMessageJson with Message[A]] {
+  def fromJsonString(json: String): A
+
+  def fromJsonReader(json: java.io.Reader): A
 }
 
 trait GeneratedMessageCompanion[A <: GeneratedMessage with Message[A]] {

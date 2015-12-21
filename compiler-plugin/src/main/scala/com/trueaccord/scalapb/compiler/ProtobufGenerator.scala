@@ -801,9 +801,17 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 
   def generateMessageCompanion(message: Descriptor)(printer: FunctionalPrinter): FunctionalPrinter = {
     val className = message.nameSymbol
-    val mixins = if (message.javaConversions)
-      s"with com.trueaccord.scalapb.JavaProtoSupport[$className, ${message.javaTypeName}] " else ""
-    val companionType = s"com.trueaccord.scalapb.GeneratedMessageCompanion[$className] $mixins"
+    val mixins = List(
+      if (message.javaConversions)
+        s"with com.trueaccord.scalapb.JavaProtoSupport[$className, ${message.javaTypeName}] "
+      else
+        "",
+      if (message.json)
+        s"with com.trueaccord.scalapb.GeneratedMessageJsonCompanion[$className] "
+      else
+        ""
+    )
+    val companionType = s"com.trueaccord.scalapb.GeneratedMessageCompanion[$className] ${mixins.mkString}"
     printer.addM(
       s"""object $className extends $companionType {
          |  implicit def messageCompanion: $companionType = this""")
