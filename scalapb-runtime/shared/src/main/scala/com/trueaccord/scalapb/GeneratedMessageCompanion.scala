@@ -101,7 +101,7 @@ trait JavaProtoSupport[ScalaPB, JavaPB] {
   def toJavaProto(scalaProto: ScalaPB): JavaPB
 }
 
-trait GeneratedMessageJsonCompanion[A <: GeneratedMessageJson with Message[A]] {
+trait GeneratedMessageJsonCompanion[A <: GeneratedMessageJson with Message[A]] extends GeneratedMessageCompanion[A] {
   def fromJsonString(json: String): A
 
   def fromJsonReader(json: java.io.Reader): A
