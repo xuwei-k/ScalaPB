@@ -6,7 +6,7 @@ import com.google.protobuf.{ByteString => GoogleByteString}
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import scala.collection.JavaConversions._
 
-case class GeneratorParams(javaConversions: Boolean = false, flatPackage: Boolean = false, grpc: Boolean = false)
+case class GeneratorParams(javaConversions: Boolean = false, flatPackage: Boolean = false, grpc: Boolean = false, json: Boolean = true)
 
 class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   def printEnum(e: EnumDescriptor, printer: FunctionalPrinter): FunctionalPrinter = {
@@ -850,6 +850,8 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
           _
             .add(s"def $withMethod(__v: ${field.scalaTypeName}): ${message.nameSymbol} = copy(${field.scalaName.asSymbol} = __v)")
         }
+    }.when(params.json && message.javaConversions){
+      _.add(s"def toJsonString: String = _root_.com.google.protobuf.util.JsonFormat.printer.print(${message.nameSymbol}.toJavaProto(this))")
     }.print(message.getOneofs) {
       case (oneof, printer) =>
         printer.addM(
@@ -998,6 +1000,7 @@ object ProtobufGenerator {
       case (Right(params), "java_conversions") => Right(params.copy(javaConversions = true))
       case (Right(params), "flat_package") => Right(params.copy(flatPackage = true))
       case (Right(params), "grpc") => Right(params.copy(grpc = true))
+      case (Right(params), "json") => Right(params.copy(javaConversions = true, json = true))
       case (Right(params), p) => Left(s"Unrecognized parameter: '$p'")
       case (x, _) => x
     }
