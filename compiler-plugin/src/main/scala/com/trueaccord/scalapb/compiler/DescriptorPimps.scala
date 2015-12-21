@@ -226,7 +226,11 @@ trait DescriptorPimps {
     def nameSymbol = scalaName.asSymbol
 
     def baseClasses: Seq[String] =
-      Seq("com.trueaccord.scalapb.GeneratedMessage",
+      (if(json) {
+        Seq("com.trueaccord.scalapb.GeneratedMessageJson")
+      } else {
+        Seq("com.trueaccord.scalapb.GeneratedMessage")
+      }) ++ Seq(
         s"com.trueaccord.scalapb.Message[$nameSymbol]",
         s"com.trueaccord.lenses.Updatable[$nameSymbol]") ++ extendsOption
 
@@ -235,6 +239,8 @@ trait DescriptorPimps {
     def isMapEntry: Boolean = message.getOptions.getMapEntry
 
     def javaConversions = params.javaConversions && !isMapEntry
+
+    def json = params.json && !isMapEntry
 
     def isTopLevel = message.getContainingType == null
 
