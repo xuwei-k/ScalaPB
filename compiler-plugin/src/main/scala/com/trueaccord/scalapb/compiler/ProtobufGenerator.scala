@@ -6,7 +6,7 @@ import com.google.protobuf.{ByteString => GoogleByteString}
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
 import scala.collection.JavaConversions._
 
-case class GeneratorParams(javaConversions: Boolean = false, flatPackage: Boolean = false, grpc: Boolean = false, json: Boolean = true)
+case class GeneratorParams(javaConversions: Boolean = false, flatPackage: Boolean = false, grpc: Boolean = false, json: Boolean = false)
 
 class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   def printEnum(e: EnumDescriptor, printer: FunctionalPrinter): FunctionalPrinter = {
@@ -788,7 +788,6 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       s"  parser.merge(json, builder)",
       s"  ${message.nameSymbol}.fromJavaProto(builder.build())",
       s"}",
-      "",
       s"def fromJsonReader(json: java.io.Reader): ${message.nameSymbol} = {",
       s"  val registry = $JsonFormat.TypeRegistry.newBuilder().add(this.descriptor).build()",
       s"  val parser = $JsonFormat.parser().usingTypeRegistry(registry)",
