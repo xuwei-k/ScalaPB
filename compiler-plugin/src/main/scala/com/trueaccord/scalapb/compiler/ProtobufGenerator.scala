@@ -9,6 +9,17 @@ import scala.collection.JavaConversions._
 case class GeneratorParams(javaConversions: Boolean = false, flatPackage: Boolean = false, grpc: Boolean = false)
 
 class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
+  private[this] val Arbitrary = "org.scalacheck.Arbitrary"
+  private[this] val Gen = "org.scalacheck.Gen"
+  private[this] val arbitraryFromTypeMapper = s"""
+    |  private[this] implicit def arbitraryFromTypeMapper[A, B](implicit A: $Arbitrary[A], T: com.trueaccord.scalapb.TypeMapper[A, B]): $Arbitrary[B] =
+    |    $Arbitrary(A.arbitrary.map(T.toCustom))
+    |
+    |  private[this] implicit def byteStringArbitrary: $Arbitrary[com.google.protobuf.ByteString] =
+    |    $Arbitrary($Gen.identifier.map(com.google.protobuf.ByteString.copyFromUtf8))
+    |
+    |""".stripMargin
+
   def printEnum(e: EnumDescriptor, printer: FunctionalPrinter): FunctionalPrinter = {
     val name = e.nameSymbol
     printer
@@ -26,6 +37,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       .add("")
       .add(s"object $name extends com.trueaccord.scalapb.GeneratedEnumCompanion[$name] {")
       .indent
+      .add(s"""
+           |  implicit val arbitrary: $Arbitrary[$name] =
+           |    $Arbitrary(${if(e.getValues.size == 1) s"$Gen.const(${e.getValues.head.getName.asSymbol})" else s"$Gen.oneOf(${e.getValues.map(_.getName.asSymbol).mkString(", ")})"})
+           |
+           |$arbitraryFromTypeMapper
+           |
+         """.stripMargin)
       .print(e.getValues) {
       case (v, p) => p.addM(
         s"""@SerialVersionUID(0L)
@@ -82,6 +100,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       .addM(
         s"""}
            |object ${e.upperScalaName} extends {
+           |  implicit val arbitrary: $Arbitrary[${e.upperScalaName}] =
+           |    $Arbitrary($Gen.oneOf(
+           |      $Gen.const(Empty), ${e.fields.map(f => s"$Gen.resultOf(${f.upperScalaName}.apply _)").mkString(", ")}
+           |    ))
+           |
+           |$arbitraryFromTypeMapper
+           |
            |  @SerialVersionUID(0L)
            |  case object Empty extends ${e.upperScalaName} {
            |    override def isEmpty: Boolean = true
@@ -785,7 +810,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     val companionType = s"com.trueaccord.scalapb.GeneratedMessageCompanion[$className] $mixins"
     printer.addM(
       s"""object $className extends $companionType {
-         |  implicit def messageCompanion: $companionType = this""")
+         |  implicit def messageCompanion: $companionType = this
+         |$arbitraryFromTypeMapper
+         |
+         |  implicit val arbitrary: $Arbitrary[$className] =
+         |    $Arbitrary(${if(message.fields.isEmpty) s"$Gen.const($className())" else s"$Gen.resultOf(this.apply _)"})
+         |
+         |""")
       .indent
       .when(message.javaConversions)(generateToJavaProto(message))
       .when(message.javaConversions)(generateFromJavaProto(message))

@@ -15,9 +15,7 @@ cache:
   - $HOME/.sbt/boot/
 
 script:
-- ./e2e.sh
 - sbt -J-Xmx3000M ++$TRAVIS_SCALA_VERSION test
-- sbt -J-Xmx3000M ++$TRAVIS_SCALA_VERSION universal:packageBin
 # Tricks to avoid unnecessary cache updates
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm

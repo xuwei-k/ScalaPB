@@ -138,6 +138,7 @@ object SchemaGenerators {
     println("Compiling Scala sources.")
     val classPath = Seq(
       jarForClass[annotation.Annotation].getPath,
+      jarForClass[org.scalacheck.Arbitrary[_]].getPath,
       jarForClass[com.trueaccord.scalapb.GeneratedMessage].getPath,
       jarForClass[com.trueaccord.scalapb.Scalapb].getPath,
       jarForClass[com.trueaccord.scalapb.grpc.Grpc.type].getPath,

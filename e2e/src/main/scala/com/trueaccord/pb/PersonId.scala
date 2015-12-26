@@ -3,6 +3,7 @@ package com.trueaccord.pb
 import com.trueaccord.scalapb.TypeMapper
 import com.trueaccord.proto.e2e.custom_types.CustomMessage.Name
 import com.trueaccord.proto.e2e.custom_types.CustomMessage.Weather
+import org.scalacheck.{Gen, Arbitrary}
 
 case class PersonId(untypedId: String)
 
@@ -12,12 +13,23 @@ case class FullName(firstName: String, lastName: String)
 
 case class WrappedWeather(weather: Weather)
 
+object WrappedWeather {
+  implicit val arbitrary: Arbitrary[WrappedWeather] =
+    Arbitrary(Gen.resultOf(apply _))
+}
+
 object PersonId {
   implicit val mapper = TypeMapper(PersonId.apply)(_.untypedId)
+
+  implicit val arbitrary: Arbitrary[PersonId] =
+    Arbitrary(Gen.resultOf(apply _))
 }
 
 object Years {
   implicit val mapper = TypeMapper(Years.apply)(_.number)
+
+  implicit val arbitrary: Arbitrary[Years] =
+    Arbitrary(Gen.resultOf(apply _))
 }
 
 object FullName {
