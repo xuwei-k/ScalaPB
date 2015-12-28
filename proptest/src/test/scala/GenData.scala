@@ -36,7 +36,7 @@ object GenData {
       s =>
         def genCount: Gen[Int] = field.fieldOptions.modifier match {
           case FieldModifier.OPTIONAL =>
-            if (depth > 3) Gen.const(0)
+            if (depth > 2) Gen.const(0)
               // If a one of, we already considered not providing a value,
               // so we always return 1
             else if (field.oneOfGroup.isOneof) Gen.const(1)
