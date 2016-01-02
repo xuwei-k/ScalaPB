@@ -15,7 +15,7 @@ object Fields {
       case h :: t =>
         h.value match {
           case Varint(a) =>
-              out.writeInt64(h.fieldNumber, a)
+            out.writeInt64(h.fieldNumber, a)
           case Number64(a) =>
             out.writeFixed64(h.fieldNumber, a)
           case Number32(a) =>
