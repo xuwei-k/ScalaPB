@@ -78,7 +78,7 @@ lazy val runtime = crossProject.crossType(CrossType.Full).in(file("scalapb-runti
 lazy val runtimeJVM = runtime.jvm
 lazy val runtimeJS = runtime.js
 
-val grpcVersion = "0.9.0"
+val grpcVersion = "0.12.0"
 
 lazy val grpcRuntime = project.in(file("scalapb-runtime-grpc"))
   .dependsOn(runtimeJVM)
@@ -109,7 +109,7 @@ lazy val proptest = project.in(file("proptest"))
       libraryDependencies ++= Seq(
         "com.github.os72" % "protoc-jar" % "3.0.0-b1",
         "com.google.protobuf" % "protobuf-java" % "3.0.0-beta-1",
-        "io.grpc" % "grpc-all" % "0.9.0" % "test",
+        "io.grpc" % "grpc-all" % "0.12.0" % "test",
         "com.trueaccord.lenses" %% "lenses" % "0.4.1",
         "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
         "org.scalatest" %% "scalatest" % (if (scalaVersion.value.startsWith("2.12")) "2.2.5-M2" else "2.2.5") % "test"
