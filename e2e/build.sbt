@@ -19,7 +19,7 @@ PB.runProtoc in PB.protobufConfig := {args0 =>
   }
 }
 
-val grpcVersion = "0.9.0"
+val grpcVersion = "0.12.0"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
