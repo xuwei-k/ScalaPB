@@ -4,6 +4,7 @@ import com.trueaccord.pb.{Service1JavaImpl, Service1ScalaImpl}
 import com.trueaccord.proto.e2e.service.{Service1Grpc => Service1GrpcScala}
 import com.trueaccord.proto.e2e.{Service1Grpc => Service1GrpcJava}
 import io.grpc.netty.{NegotiationType, NettyChannelBuilder, NettyServerBuilder}
+import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
 import io.grpc.stub.StreamObserver
 import io.grpc.{ManagedChannel, ServerServiceDefinition}
 import org.scalatest.{FunSpec, MustMatchers}
@@ -22,15 +23,15 @@ abstract class GrpcServiceSpecBase extends FunSpec with MustMatchers {
   }
 
   private[this] def withServer[A](services: ServerServiceDefinition*)(f: ManagedChannel => A): A = {
-    val port = UniquePortGenerator.get()
-    val server = services.foldLeft(NettyServerBuilder.forPort(port))(_.addService(_)).build()
+    val name = "test-server-" + randomString
+    val server = services.foldLeft(InProcessServerBuilder.forName(name))(_.addService(_)).build()
     try {
       server.start()
-      val channel = NettyChannelBuilder.forAddress("localhost", port).negotiationType(NegotiationType.PLAINTEXT).build()
+      val channel = InProcessChannelBuilder.forName(name).build()
       f(channel)
     } finally {
       server.shutdown()
-      server.awaitTermination(3000, TimeUnit.MILLISECONDS)
+      server.awaitTermination(100, TimeUnit.MILLISECONDS)
     }
   }
 
