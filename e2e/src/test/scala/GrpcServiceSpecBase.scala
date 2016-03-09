@@ -23,7 +23,7 @@ abstract class GrpcServiceSpecBase extends FunSpec with MustMatchers {
   }
 
   private[this] def withServer[A](services: ServerServiceDefinition*)(f: ManagedChannel => A): A = {
-    val name = "test-server-" + randomString
+    val name = "test-server-" + System.currentTimeMillis.toString + System.nanoTime
     val server = services.foldLeft(InProcessServerBuilder.forName(name))(_.addService(_)).build()
     try {
       server.start()
