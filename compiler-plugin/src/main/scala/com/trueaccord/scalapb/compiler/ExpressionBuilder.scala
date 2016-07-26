@@ -10,7 +10,7 @@ sealed trait Expression extends Product with Serializable {
     case (e1: LiteralExpression, e2: LiteralExpression) => ExpressionList(e2 :: e1 :: Nil)
   }
 
-  def apply(e: String, isCollection: Boolean): String = ExpressionBuilder.run(this)(e, isCollection)
+  def apply(e: String, isCollection: Boolean, javaConversion: Boolean): String = ExpressionBuilder.run(this)(e, isCollection, javaConversion)
 }
 
 case class ExpressionList(l: List[LiteralExpression]) extends Expression
@@ -49,25 +49,27 @@ object ExpressionBuilder {
     case OperatorApplication(name) :: tail => s"${runSingleton(tail)(e)} $name"
   }
 
-  def runCollection(es: List[LiteralExpression])(e: String): String = {
+  def runCollection(es: List[LiteralExpression], javaConversion: Boolean)(e: String): String = {
     val nontrivial = es.filterNot(_.isIdentity)
     val needVariable =
       nontrivial.filterNot(_.isIdentity)
         .dropRight(1).exists(_.isFunctionApplication)
 
+    val asScala = if(javaConversion) ".asScala" else ""
+
     if (needVariable)
-      s"""$e.map(__e => ${runSingleton(nontrivial)("__e")})"""
+      s"""$e$asScala.map(__e => ${runSingleton(nontrivial)("__e")})"""
     else if (nontrivial.nonEmpty)
-      s"""$e.map(${runSingleton(nontrivial)("_")})"""
+      s"""$e$asScala.map(${runSingleton(nontrivial)("_")})"""
     else e
   }
 
-  def run(es: List[LiteralExpression])(e: String, isCollection: Boolean): String =
-    if (isCollection) runCollection(es)(e)
+  def run(es: List[LiteralExpression])(e: String, isCollection: Boolean, javaConversion: Boolean): String =
+    if (isCollection) runCollection(es, javaConversion)(e)
     else runSingleton(es)(e)
 
-  def run(es: Expression)(e: String, isCollection: Boolean): String = es match {
-    case ExpressionList(l) => run(l)(e, isCollection)
-    case expr: LiteralExpression => run(expr :: Nil)(e, isCollection)
+  def run(es: Expression)(e: String, isCollection: Boolean, javaConversion: Boolean): String = es match {
+    case ExpressionList(l) => run(l)(e, isCollection, javaConversion)
+    case expr: LiteralExpression => run(expr :: Nil)(e, isCollection, javaConversion)
   }
 }

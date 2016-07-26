@@ -196,8 +196,8 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     val valueConversion: Expression = javaToScalaConversion(field)
 
     if (field.supportsPresence)
-      s"if ($javaHazzer) Some(${valueConversion.apply(javaGetter, isCollection = false)}) else None"
-    else valueConversion(javaGetter, isCollection = field.isRepeated)
+      s"if ($javaHazzer) Some(${valueConversion.apply(javaGetter, isCollection = false, params.javaConversions)}) else None"
+    else valueConversion(javaGetter, isCollection = field.isRepeated, params.javaConversions)
   }
 
   def javaFieldToScala(container: String, field: FieldDescriptor): String = {
@@ -212,8 +212,8 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 
   def javaMapFieldToScala(container: String, field: FieldDescriptor) = {
     // TODO(thesamet): if both unit conversions are NoOp, we can omit the map call.
-    def unitConversion(n: String, field: FieldDescriptor) = javaToScalaConversion(field).apply(n, isCollection = false)
-    s"${container}.get${field.upperScalaName}.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)})).toMap"
+    def unitConversion(n: String, field: FieldDescriptor) = javaToScalaConversion(field).apply(n, isCollection = false, params.javaConversions)
+    s"${container}.get${field.upperScalaName}.asScala.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)})).toMap"
   }
 
   def scalaToJava(field: FieldDescriptor, boxPrimitives: Boolean): Expression = {
@@ -238,7 +238,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 
   def assignScalaMapToJava(scalaObject: String, javaObject: String, field: FieldDescriptor): String = {
     def valueConvert(v: String, field: FieldDescriptor) =
-      scalaToJava(field, boxPrimitives = true).apply(v, isCollection = false)
+      scalaToJava(field, boxPrimitives = true).apply(v, isCollection = false, params.javaConversions)
 
     val getMutableMap = s"getMutable${field.upperScalaName}" + (
       if (field.mapType.valueField.isEnum && field.getFile.isProto3) "Value" else "")
@@ -262,7 +262,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       val scalaGetter = scalaObject + "." + fieldAccessorSymbol(field)
 
       val scalaExpr = (toBaseTypeExpr(field) andThen scalaToJava(field, boxPrimitives = field.isRepeated)).apply(
-        scalaGetter, isCollection = !field.isSingular)
+        scalaGetter, isCollection = !field.isSingular, params.javaConversions)
       if (field.supportsPresence || field.isInOneof)
         s"$scalaExpr.foreach($javaSetter)"
       else
@@ -279,7 +279,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
           .print(message.fields) {
           case (f, fp) =>
             val e = toBaseFieldType(f)
-              .apply(fieldAccessorSymbol(f), isCollection = !f.isSingular)
+              .apply(fieldAccessorSymbol(f), isCollection = !f.isSingular, params.javaConversions)
             if (f.supportsPresence || f.isInOneof)
               fp.add(s"case ${f.getNumber} => $e.getOrElse(null)")
             else if (f.isOptional) {
@@ -346,14 +346,14 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   else toBaseTypeExpr(field)
 
   def toBaseType(field: FieldDescriptor)(expr: String) =
-    toBaseTypeExpr(field).apply(expr, isCollection = false)
+    toBaseTypeExpr(field).apply(expr, isCollection = false, params.javaConversions)
 
   def toCustomTypeExpr(field: FieldDescriptor) =
     if (field.customSingleScalaTypeName.isEmpty) Identity
     else FunctionApplication(s"${field.typeMapper}.toCustom")
 
   def toCustomType(field: FieldDescriptor)(expr: String) =
-    toCustomTypeExpr(field).apply(expr, isCollection = false)
+    toCustomTypeExpr(field).apply(expr, isCollection = false, params.javaConversions)
 
   def generateSerializedSizeForField(field: FieldDescriptor, fp: FunctionalPrinter): FunctionalPrinter = {
     val fieldNameSymbol = fieldAccessorSymbol(field)
@@ -546,7 +546,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
                 fieldAccessorSymbol(field) else s"__${field.scalaName}"
               val mappedType =
                 toBaseFieldType(field).apply(expr,
-                  isCollection = !field.isSingular)
+                  isCollection = !field.isSingular, params.javaConversions)
               if (field.isInOneof || field.supportsPresence) (mappedType + s".getOrElse($defInstance)")
               else mappedType
             }
@@ -683,7 +683,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               s"__fieldsMap.getOrElse(__fields.get(${field.getIndex}), $t).asInstanceOf[$baseTypeName]"
             }
 
-            val s = transform(field).apply(e, isCollection = !field.isSingular)
+            val s = transform(field).apply(e, isCollection = !field.isSingular, params.javaConversions)
             if (field.isMap) s + "(scala.collection.breakOut)"
             else s
         }
@@ -693,7 +693,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               field =>
                 val typeName = if (field.isEnum) "com.google.protobuf.Descriptors.EnumValueDescriptor" else field.baseSingleScalaTypeName
                 val e = s"__fieldsMap.get(__fields.get(${field.getIndex})).asInstanceOf[scala.Option[$typeName]]"
-                (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, isCollection = true)
+                (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, isCollection = true, params.javaConversions)
             } mkString (" orElse\n")
             s"${oneOf.scalaName.asSymbol} = $elems getOrElse ${oneOf.empty}"
         }
@@ -891,7 +891,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
           val factoryMethod =
             if (fd.isOptional) "com.trueaccord.scalapb.GeneratedExtension.forOptionalUnknownField"
             else if (fd.isRepeated) "com.trueaccord.scalapb.GeneratedExtension.forRepeatedUnknownField"
-          fp.add(s"  $factoryMethod(${fd.getNumber}, _.$container)({__valueIn => ${customExpr("__valueIn", false)}})")
+          fp.add(s"  $factoryMethod(${fd.getNumber}, _.$container)({__valueIn => ${customExpr("__valueIn", false, params.javaConversions)}})")
       }
   }
 
@@ -994,7 +994,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
          |
          |${if (file.scalaPackageName.nonEmpty) ("package " + file.scalaPackageName) else ""}
          |
-         |${if (params.javaConversions) "import scala.collection.JavaConversions._" else ""}""")
+         |${if (params.javaConversions) "import scala.collection.JavaConverters._" else ""}""")
     .print(file.scalaOptions.getImportList.asScala) {
       case (i, printer) => printer.add(s"import $i")
     }
