@@ -20,6 +20,8 @@ javacOptions in ThisBuild ++= {
   }
 }
 
+javacOptions in ThisBuild ++= Seq("-deprecation")
+
 organization in ThisBuild := "com.trueaccord.scalapb"
 
 resolvers in ThisBuild +=
