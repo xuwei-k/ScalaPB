@@ -855,7 +855,6 @@ message TestParsingMerge {
 }
 
 message TestCommentInjectionMessage {
-  // */ <- This should not close the generated doc comment
   optional string a = 1 [default="*/ <- Neither should this."];
 }
 
