@@ -31,7 +31,7 @@ val commonSettings = PB.protobufSettings ++ Seq(
         s"--plugin=protoc-gen-java_rpc=${grpcExePath.value.get}",
         s"--java_rpc_out=${((sourceManaged in Compile).value / "compiled_protobuf").getAbsolutePath}"
       )
-      com.github.os72.protocjar.Protoc.runProtoc("-v300" +: args.toArray)
+      sys.process.Process("protoc" +: args.toList).!
     },
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "2.2.1" % "test",
