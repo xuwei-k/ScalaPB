@@ -220,10 +220,11 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
   }
 
   def printService(printer: FunctionalPrinter): FunctionalPrinter = {
+    val serviceCompanionType = s"_root_.com.trueaccord.scalapb.grpc.ServiceCompanion[${service.objectName}.type]"
     printer.add(
       "package " + service.getFile.scalaPackageName,
       "",
-      s"object ${service.objectName} extends _root_.com.trueaccord.scalapb.grpc.ServiceCompanion {"
+      s"object ${service.objectName} extends $serviceCompanionType {"
     ).newline.withIndent(
       _.call(service.methods.map(methodDescriptor): _*),
       serviceTrait,
@@ -239,6 +240,8 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
       _.add(s"def blockingStub(channel: $channel): ${service.blockingStub} = new ${service.blockingStub}(channel)"),
       _.newline,
       _.add(s"def stub(channel: $channel): ${service.stub} = new ${service.stub}(channel)"),
+      _.newline,
+      _.add(s"implicit val serviceCompanion: $serviceCompanionType = this"),
       _.newline,
       _.add(s"def descriptor: _root_.com.google.protobuf.Descriptors.ServiceDescriptor = ${service.getFile.fileDescriptorObjectFullName}.descriptor.getServices().get(${service.getIndex})")
     )
