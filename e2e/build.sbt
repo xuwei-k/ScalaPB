@@ -1,4 +1,6 @@
-scalaVersion := "2.11.8"
+val Scala211 = "2.11.8"
+
+scalaVersion := Scala211
 
 val grpcVersion = "1.0.1"
 
@@ -65,4 +67,22 @@ lazy val noJava = (project in file("nojava"))
     PB.targets in Compile := Seq(
       scalapb.gen() -> (sourceManaged in Compile).value
     )
+  )
+
+lazy val disableDefaultParams = (project in file("disable_default_params"))
+  .settings(commonSettings)
+  .settings(
+    scalaVersion := Scala211,
+    sourceDirectory in Compile := (sourceDirectory in Compile in root).value,
+    // TODO add `defaultParams: SettingKey[Boolean]` to sbt-scalapb
+    PB.protocOptions in sbtprotobuf.ProtobufPlugin.protobufConfig := {
+      val conf = (PB.generatedTargets in PB.protobufConfig).value
+      val scalaOpts = conf.find(_._2.endsWith(".scala")).map{
+        targetForScala => s"--scala_out=grpc,disable_default_params:${targetForScala._1.absolutePath}"
+      }
+      val javaOpts = conf.find(_._2.endsWith(".java")).map{
+        targetForJava => s"--java_out=${targetForJava._1.absolutePath}"
+      }
+      scalaOpts.toList ++ javaOpts.toList
+    }
   )

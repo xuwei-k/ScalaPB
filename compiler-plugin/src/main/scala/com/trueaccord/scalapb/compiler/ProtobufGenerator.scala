@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 case class GeneratorParams(
   javaConversions: Boolean = false, flatPackage: Boolean = false,
-  grpc: Boolean = false, singleLineToString: Boolean = false)
+  grpc: Boolean = false, singleLineToString: Boolean = false, defaultParams: Boolean = true)
 
 // Exceptions that are caught and passed upstreams as errors.
 case class GeneratorException(message: String) extends Exception(message)
@@ -501,12 +501,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     val regularFields = message.fields.collect {
       case field if !field.isInOneof =>
       val typeName = field.scalaTypeName
-      val ctorDefaultValue =
+      val ctorDefaultValue = if(params.defaultParams) {
         if (field.isOptional && field.supportsPresence) " = None"
         else if (field.isSingular && !field.isRequired) " = " + defaultValueForGet(field)
         else if (field.isMap) " = scala.collection.immutable.Map.empty"
         else if (field.isRepeated) " = Nil"
         else ""
+      } else ""
         s"${field.scalaName.asSymbol}: $typeName$ctorDefaultValue"
     }
     val oneOfFields = message.getOneofs.asScala.map {
@@ -719,7 +720,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       .add(s"lazy val defaultInstance = $myFullScalaName(")
       .indent
       .addWithDelimiter(",")(message.fields.collect {
-      case field if field.isRequired =>
+      case field if (field.isRequired || !params.defaultParams) && !field.isInOneof =>
         val default = defaultValueForDefaultInstance(field)
         s"${field.scalaName.asSymbol} = $default"
     })
@@ -1172,6 +1173,7 @@ object ProtobufGenerator {
       case (Right(params), "flat_package") => Right(params.copy(flatPackage = true))
       case (Right(params), "grpc") => Right(params.copy(grpc = true))
       case (Right(params), "single_line_to_string") => Right(params.copy(singleLineToString = true))
+      case (Right(params), "disable_default_params") => Right(params.copy(defaultParams = false))
       case (Right(params), p) => Left(s"Unrecognized parameter: '$p'")
       case (x, _) => x
     }
