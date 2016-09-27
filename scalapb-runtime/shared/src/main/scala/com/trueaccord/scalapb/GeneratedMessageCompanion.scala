@@ -22,6 +22,8 @@ trait GeneratedEnum extends Product with Serializable {
   def companion: GeneratedEnumCompanion[EnumType]
 
   def valueDescriptor: EnumValueDescriptor = companion.descriptor.getValues.get(index)
+
+  def isUnrecognized: Boolean
 }
 
 trait GeneratedEnumCompanion[A <: GeneratedEnum] {
