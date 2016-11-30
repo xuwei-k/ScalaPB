@@ -4,5 +4,7 @@ sbt ++2.10.6 compilerPlugin/publishLocal runtimeJVM/publishLocal createVersionFi
     ++2.11.8 runtimeJVM/publishLocal grpcRuntime/publishLocal
 cd e2e
 sbt clean noJava/clean noJava/test test
-sbt -DcollectionType=List clean compile
-sbt -DcollectionType=Vector clean compile
+for t in List Vector Array
+do
+  sbt -DcollectionType=${t} clean compile
+done
