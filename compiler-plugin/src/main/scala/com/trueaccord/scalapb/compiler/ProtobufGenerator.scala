@@ -533,7 +533,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         else if (field.isMap)
           printer.add(s"val __${field.scalaName} = (scala.collection.immutable.Map.newBuilder[${field.mapType.keyType}, ${field.mapType.valueType}] ++= this.${field.scalaName.asSymbol})")
         else
-          printer.add(s"val __${field.scalaName} = (scala.collection.immutable.Vector.newBuilder[${field.singleScalaTypeName}] ++= this.${field.scalaName.asSymbol})")
+          printer.add(s"val __${field.scalaName} = (scala.collection.immutable.List.newBuilder[${field.singleScalaTypeName}] ++= this.${field.scalaName.asSymbol})")
       )
       .print(message.getOneofs.asScala)((printer, oneof) =>
         printer.add(s"var __${oneof.scalaName} = this.${oneof.scalaName.asSymbol}"))
