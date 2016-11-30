@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 case class GeneratorParams(
   javaConversions: Boolean = false, flatPackage: Boolean = false,
-  grpc: Boolean = false, singleLineToString: Boolean = false)
+  grpc: Boolean = false, singleLineToString: Boolean = false, collectionType: String = "scala.collection.Seq")
 
 // Exceptions that are caught and passed upstreams as errors.
 case class GeneratorException(message: String) extends Exception(message)
@@ -171,7 +171,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   def defaultValueForDefaultInstance(field: FieldDescriptor) =
     if (field.supportsPresence) "None"
     else if (field.isMap) "scala.collection.immutable.Map.empty"
-    else if (field.isRepeated) "Nil"
+    else if (field.isRepeated) params.collectionType + ".empty"
     else defaultValueForGet(field)
 
   def javaToScalaConversion(field: FieldDescriptor) = {
@@ -534,7 +534,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         else if (field.isMap)
           printer.add(s"val __${field.scalaName} = (scala.collection.immutable.Map.newBuilder[${field.mapType.keyType}, ${field.mapType.valueType}] ++= this.${field.scalaName.asSymbol})")
         else
-          printer.add(s"val __${field.scalaName} = (scala.collection.immutable.Vector.newBuilder[${field.singleScalaTypeName}] ++= this.${field.scalaName.asSymbol})")
+          printer.add(s"val __${field.scalaName} = (${params.collectionType}.newBuilder[${field.singleScalaTypeName}] ++= this.${field.scalaName.asSymbol})")
       )
       .when(requiredFieldMap.nonEmpty) {
         fp =>
@@ -1016,7 +1016,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               p.add(
                 s"""def $withMethod(__v: ${singleType}): ${message.nameSymbol} = copy(${field.getContainingOneof.scalaName.asSymbol} = ${field.oneOfTypeName}(__v))""")
           }.when(field.isRepeated) { p =>
-            val emptyValue = if (field.isMap) "scala.collection.immutable.Map.empty" else "scala.collection.Seq.empty"
+            val emptyValue = if (field.isMap) "scala.collection.immutable.Map.empty" else params.collectionType + ".empty"
             p.addStringMargin(
               s"""def $clearMethod = copy(${field.scalaName.asSymbol} = $emptyValue)
                  |def add${field.upperScalaName}(__vs: $singleType*): ${message.nameSymbol} = addAll${field.upperScalaName}(__vs)
@@ -1195,12 +1195,14 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 }
 
 object ProtobufGenerator {
-  def parseParameters(params: String): Either[String, GeneratorParams] = {
+  private[this] val collectionTypeKey = "collection_type"
+  private def parseParameters(params: String): Either[String, GeneratorParams] = {
     params.split(",").map(_.trim).filter(_.nonEmpty).foldLeft[Either[String, GeneratorParams]](Right(GeneratorParams())) {
       case (Right(params), "java_conversions") => Right(params.copy(javaConversions = true))
       case (Right(params), "flat_package") => Right(params.copy(flatPackage = true))
       case (Right(params), "grpc") => Right(params.copy(grpc = true))
       case (Right(params), "single_line_to_string") => Right(params.copy(singleLineToString = true))
+      case (Right(params), p) if p.startsWith(collectionTypeKey) => Right(params.copy(collectionType = p.drop(collectionTypeKey.length + 1)))
       case (Right(params), p) => Left(s"Unrecognized parameter: '$p'")
       case (x, _) => x
     }
