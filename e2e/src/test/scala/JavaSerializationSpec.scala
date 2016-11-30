@@ -40,7 +40,7 @@ class JavaSerializationSpec extends FlatSpec with GeneratorDrivenPropertyChecks 
 
     val ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray)) {
       // https://issues.scala-lang.org/browse/SI-9777
-      override def resolveClass(desc: ObjectStreamClass) =
+      override def resolveClass(desc: java.io.ObjectStreamClass) =
         Class.forName(desc.getName, false, loader)
     }
     val b = ois.readObject().asInstanceOf[T]
