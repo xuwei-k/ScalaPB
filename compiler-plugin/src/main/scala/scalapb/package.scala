@@ -15,6 +15,6 @@ package object scalapb {
         "java_conversions" -> javaConversions,
         "grpc" -> grpc,
         "single_line_to_string" -> singleLineToString
-      ).collect { case (name, v) if v => name } :+ ("collection_type=" + collectionType)
+      ).collect { case (name, v) if v => name } :+ (ProtobufGenerator.collectionTypeKey + "=" + collectionType)
     )
 }
