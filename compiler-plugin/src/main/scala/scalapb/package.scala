@@ -1,3 +1,4 @@
+import com.trueaccord.scalapb.compiler.ProtobufGenerator
 import protocbridge.JvmGenerator
 
 package object scalapb {
