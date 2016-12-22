@@ -198,7 +198,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     if (field.supportsPresence)
       s"if ($javaHazzer) Some(${valueConversion.apply(javaGetter, tpe = ExpressionBuilder.Not)}) else None"
     else if (field.isRepeated)
-      valueConversion(javaGetter + ".asScala", tpe = ExpressionBuilder.Collection)
+      valueConversion(s"${javaGetter}.asScala.to[${params.collectionType}]", tpe = ExpressionBuilder.Collection)
     else valueConversion(javaGetter, tpe = ExpressionBuilder.Not)
   }
 
@@ -510,7 +510,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         if (field.isOptional && field.supportsPresence) " = None"
         else if (field.isSingular && !field.isRequired) " = " + defaultValueForGet(field)
         else if (field.isMap) " = scala.collection.immutable.Map.empty"
-        else if (field.isRepeated) " = Nil"
+        else if (field.isRepeated) s" = ${params.collectionType}.empty"
         else ""
         s"${field.scalaName.asSymbol}: $typeName$ctorDefaultValue"
     }
