@@ -264,7 +264,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       val scalaGetter = scalaObject + "." + fieldAccessorSymbol(field)
 
       val scalaExpr = (toBaseTypeExpr(field) andThen scalaToJava(field, boxPrimitives = field.isRepeated)).apply(
-        scalaGetter, tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.Collection)
+        scalaGetter, tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.ScalaOption)
       if (field.supportsPresence || field.isInOneof)
         s"$scalaExpr.foreach($javaSetter)"
       else
@@ -284,7 +284,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         .print(message.fields) {
           case (fp, f) =>
             val e = toBaseFieldType(f)
-              .apply(fieldAccessorSymbol(f), tpe = if(f.isSingular) ExpressionBuilder.Not else ExpressionBuilder.Collection)
+              .apply(fieldAccessorSymbol(f), tpe = if(f.isSingular) ExpressionBuilder.Not else ExpressionBuilder.ScalaOption)
             if (f.supportsPresence || f.isInOneof)
               fp.add(s"case ${f.getNumber} => $e.orNull")
             else if (f.isOptional) {
@@ -567,7 +567,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
                 fieldAccessorSymbol(field) else s"__${field.scalaName}"
               val mappedType =
                 toBaseFieldType(field).apply(expr,
-                  tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.Collection)
+                  tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.ScalaOption)
               if (field.isInOneof || field.supportsPresence) (mappedType + s".getOrElse($defInstance)")
               else mappedType
             }
@@ -715,7 +715,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               s"__fieldsMap.getOrElse(__fields.get(${field.getIndex}), $t).asInstanceOf[$baseTypeName]"
             }
 
-            val s = transform(field).apply(e, tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.Collection)
+            val s = transform(field).apply(e, tpe = if(field.isSingular) ExpressionBuilder.Not else ExpressionBuilder.ScalaOption)
             if (field.isMap) s + "(scala.collection.breakOut)"
             else s
         }
