@@ -3,7 +3,7 @@ set -e
 sbt ++2.10.6 compilerPlugin/publishLocal runtimeJVM/publishLocal createVersionFile \
     ++2.11.8 runtimeJVM/publishLocal grpcRuntime/publishLocal
 cd e2e
-for t in scala.collection.immutable.Seq scala.collection.immutable.IndexedSeq List Vector
+for t in scala.collection.immutable.Seq scala.collection.immutable.IndexedSeq List Vector Set
 do
   sbt -DcollectionType=${t} clean compile
 done

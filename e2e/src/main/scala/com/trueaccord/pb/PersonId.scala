@@ -33,7 +33,7 @@ object MisplacedMapper {
 trait DomainEvent {
   def personId: Option[PersonId]
   def optionalNumber: Option[Int]
-  def repeatedNumber: Seq[Int]
+  def repeatedNumber: Iterable[Int]
   def requiredNumber: Int
 }
 
