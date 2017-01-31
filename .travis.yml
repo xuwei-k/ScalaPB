@@ -15,21 +15,6 @@ cache:
 
 script:
 - ./e2e.sh
-- cd examples && sbt test && cd ..
-- sbt -J-Xmx6000M ++$TRAVIS_SCALA_VERSION test
-- sbt -J-Xmx6000M ++$TRAVIS_SCALA_VERSION universal:packageBin
 # Tricks to avoid unnecessary cache updates
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-
-deploy:
-  provider: releases
-  api_key:
-    secure: ZHv5KXgAHNvO6ZS2cv5SdQ43UMjcc1Bm7p9Q66z4NJoLNq5SY/Ln9ZFeUgoBMv+1SPvzL0GRWLxBxa4UYuFgFwRywlU8hQ1GF0ztZ35bvZUrFvTWp4sM62sdmSogHFDmgpG58IPNeQSPcZ+sYFhlWzvAz9hUCXzPPu6jeZSanew=
-  file: scalapbc/target/universal/scalapbc-${TRAVIS_TAG:1}.zip
-  skip_cleanup: true
-  on:
-    repo: scalapb/ScalaPB
-    tags: true
-    scala: 2.11.8
-

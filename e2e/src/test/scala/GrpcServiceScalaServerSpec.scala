@@ -25,7 +25,7 @@ class GrpcServiceScalaServerSpec extends GrpcServiceSpecBase {
       it("unaryStringLength BlockingStub") {
         withScalaServer { channel =>
           val client = Service1GrpcJava.newBlockingStub(channel)
-          val string = randomString()
+          val string = ("a" * (65 * 1024 * 1024)) //randomString()
           val request = Service.Req1.newBuilder.setRequest(string).build()
           client.unaryStringLength(request).getLength must be(string.length)
         }
