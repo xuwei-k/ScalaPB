@@ -24,6 +24,7 @@ val grpcExePath = SettingKey[xsbti.api.Lazy[File]]("grpcExePath")
 val commonSettings = Seq(
     scalacOptions ++= Seq("-deprecation"),
     javacOptions ++= Seq("-Xlint:deprecation"),
+    crossScalaVersions := "2.12.1" :: "2.11.8" :: "2.10.6" :: Nil,
     PB.protocOptions in Compile ++= Seq(
         s"--plugin=protoc-gen-java_rpc=${grpcExePath.value.get}",
         s"--java_rpc_out=${((sourceManaged in Compile).value).getAbsolutePath}"
@@ -59,10 +60,16 @@ lazy val root = (project in file("."))
       "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.Version.scalapbVersion
     ))
 
-lazy val noJava = (project in file("nojava"))
+lazy val noJava = (crossProject in file("nojava"))
   .settings(commonSettings)
   .settings(
     PB.targets in Compile := Seq(
       scalapb.gen() -> (sourceManaged in Compile).value
     )
   )
+
+lazy val noJavaJVM = noJava.jvm
+lazy val noJavaJS = noJava.js
+
+lazy val noJavaRoot = Project("noJava", file("noJava-root"))
+  .aggregate(noJavaJVM, noJavaJS)
