@@ -215,7 +215,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
   def javaMapFieldToScala(container: String, field: FieldDescriptor) = {
     // TODO(thesamet): if both unit conversions are NoOp, we can omit the map call.
     def unitConversion(n: String, field: FieldDescriptor) = javaToScalaConversion(field).apply(n, isCollection = false)
-    s"${container}.get${field.upperScalaName}Map.asScala.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)})).toMap"
+    s"${container}.get${field.upperScalaName}Map.asScala.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)}))(collection.breakOut)"
   }
 
   def scalaToJava(field: FieldDescriptor, boxPrimitives: Boolean): Expression = {
