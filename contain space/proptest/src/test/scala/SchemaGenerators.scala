@@ -92,7 +92,7 @@ object SchemaGenerators {
   private def runProtoc(args: String*) =
     ProtocBridge.runWithGenerators(args => com.github.os72.protocjar.Protoc.runProtoc("-v310" +: args.toArray),
       Seq("scala" -> ScalaPbCodeGenerator),
-      args)
+      args.map("\"" + _ + "\""))
 
   def compileProtos(rootNode: RootNode, tmpDir: File): Unit = {
     val files = rootNode.files.map {
