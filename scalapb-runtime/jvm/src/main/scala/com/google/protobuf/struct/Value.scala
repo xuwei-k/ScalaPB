@@ -192,7 +192,7 @@ __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).flatMap(_.as[scala.Opt
   }
   lazy val defaultInstance = com.google.protobuf.struct.Value(
   )
-  sealed trait Kind extends _root_.com.trueaccord.scalapb.GeneratedOneof {
+  sealed trait Kind[A] extends _root_.com.trueaccord.scalapb.GeneratedOneof[A] {
     def isEmpty: Boolean = false
     def isDefined: Boolean = true
     def number: Int
@@ -218,40 +218,46 @@ __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).flatMap(_.as[scala.Opt
     }
   
     @SerialVersionUID(0L)
-    case class NullValue(value: com.google.protobuf.struct.NullValue) extends com.google.protobuf.struct.Value.Kind {
+    case class NullValue(value: com.google.protobuf.struct.NullValue) extends com.google.protobuf.struct.Value.Kind[com.google.protobuf.struct.NullValue] {
       override def isNullValue: Boolean = true
       override def nullValue: scala.Option[com.google.protobuf.struct.NullValue] = Some(value)
       override def number: Int = 1
+      override def valueOption: Option[com.google.protobuf.struct.NullValue] = Some(value)
     }
     @SerialVersionUID(0L)
-    case class NumberValue(value: Double) extends com.google.protobuf.struct.Value.Kind {
+    case class NumberValue(value: Double) extends com.google.protobuf.struct.Value.Kind[Double] {
       override def isNumberValue: Boolean = true
       override def numberValue: scala.Option[Double] = Some(value)
       override def number: Int = 2
+      override def valueOption: Option[Double] = Some(value)
     }
     @SerialVersionUID(0L)
-    case class StringValue(value: String) extends com.google.protobuf.struct.Value.Kind {
+    case class StringValue(value: String) extends com.google.protobuf.struct.Value.Kind[String] {
       override def isStringValue: Boolean = true
       override def stringValue: scala.Option[String] = Some(value)
       override def number: Int = 3
+      override def valueOption: Option[String] = Some(value)
     }
     @SerialVersionUID(0L)
-    case class BoolValue(value: Boolean) extends com.google.protobuf.struct.Value.Kind {
+    case class BoolValue(value: Boolean) extends com.google.protobuf.struct.Value.Kind[Boolean] {
       override def isBoolValue: Boolean = true
       override def boolValue: scala.Option[Boolean] = Some(value)
       override def number: Int = 4
+      override def valueOption: Option[Boolean] = Some(value)
     }
     @SerialVersionUID(0L)
-    case class StructValue(value: com.google.protobuf.struct.Struct) extends com.google.protobuf.struct.Value.Kind {
+    case class StructValue(value: com.google.protobuf.struct.Struct) extends com.google.protobuf.struct.Value.Kind[com.google.protobuf.struct.Struct] {
       override def isStructValue: Boolean = true
       override def structValue: scala.Option[com.google.protobuf.struct.Struct] = Some(value)
       override def number: Int = 5
+      override def valueOption: Option[com.google.protobuf.struct.Struct] = Some(value)
     }
     @SerialVersionUID(0L)
-    case class ListValue(value: com.google.protobuf.struct.ListValue) extends com.google.protobuf.struct.Value.Kind {
+    case class ListValue(value: com.google.protobuf.struct.ListValue) extends com.google.protobuf.struct.Value.Kind[com.google.protobuf.struct.ListValue] {
       override def isListValue: Boolean = true
       override def listValue: scala.Option[com.google.protobuf.struct.ListValue] = Some(value)
       override def number: Int = 6
+      override def valueOption: Option[com.google.protobuf.struct.ListValue] = Some(value)
     }
   }
   implicit class ValueLens[UpperPB](_l: _root_.com.trueaccord.lenses.Lens[UpperPB, com.google.protobuf.struct.Value]) extends _root_.com.trueaccord.lenses.ObjectLens[UpperPB, com.google.protobuf.struct.Value](_l) {

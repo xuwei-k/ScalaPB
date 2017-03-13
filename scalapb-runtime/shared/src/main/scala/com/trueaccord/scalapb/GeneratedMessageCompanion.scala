@@ -56,10 +56,11 @@ trait GeneratedEnumCompanion[A <: GeneratedEnum] {
   def scalaDescriptor: _root_.scalapb.descriptors.EnumDescriptor
 }
 
-trait GeneratedOneof extends Any with Product with Serializable {
+trait GeneratedOneof[A] extends Any with Product with Serializable {
   def number: Int
   def isDefined: Boolean
   def isEmpty: Boolean
+  def valueOption: Option[A] = None
 }
 
 trait GeneratedOneofCompanion

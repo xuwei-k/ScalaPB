@@ -77,12 +77,11 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         s"another message name '${e.upperScalaName}'.")
     }
     printer
-      .add(s"sealed trait ${e.upperScalaName} extends _root_.com.trueaccord.scalapb.GeneratedOneof {")
+      .add(s"sealed trait ${e.upperScalaName}[A] extends _root_.com.trueaccord.scalapb.GeneratedOneof[A] {")
       .indent
       .add(s"def isEmpty: Boolean = false")
       .add(s"def isDefined: Boolean = true")
       .add(s"def number: Int")
-      .add(s"def valueOption: Option[scala.Any] = None")
       .print(e.fields) {
       case (p, v) => p
         .add(s"def is${v.upperScalaName}: Boolean = false")
@@ -107,11 +106,11 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         case (p, v) =>
           p.addStringMargin(
             s"""@SerialVersionUID(0L)
-               |case class ${v.upperScalaName}(value: ${v.scalaTypeName}) extends ${e.scalaTypeName} {
+               |case class ${v.upperScalaName}(value: ${v.scalaTypeName}) extends ${e.scalaTypeName}[${v.scalaTypeName}] {
                |  override def is${v.upperScalaName}: Boolean = true
                |  override def ${v.scalaName.asSymbol}: scala.Option[${v.scalaTypeName}] = Some(value)
                |  override def number: Int = ${v.getNumber}
-               |  override def valueOption: Option[scala.Any] = Some(value)
+               |  override def valueOption: Option[${v.scalaTypeName}] = Some(value)
                |}""")
     }
     .outdent
