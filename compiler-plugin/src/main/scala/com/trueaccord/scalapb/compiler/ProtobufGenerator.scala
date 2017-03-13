@@ -111,7 +111,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
                |  override def is${v.upperScalaName}: Boolean = true
                |  override def ${v.scalaName.asSymbol}: scala.Option[${v.scalaTypeName}] = Some(value)
                |  override def number: Int = ${v.getNumber}
-               |  override def valueOption: Option[scala.Any] = Some(value)
+               |  override def valueOption: Option[${v.scalaTypeName}] = Some(value)
                |}""")
     }
     .outdent
