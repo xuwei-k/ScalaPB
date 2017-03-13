@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
 set -e
-SCALA_VERSION=${SCALA_VERSION:-${TRAVIS_SCALA_VERSION:-2.11.11}}
 
-sbt ++2.10.6 compilerPlugin/publishLocal createVersionFile \
-    ++$SCALA_VERSION runtimeJVM/publishLocal grpcRuntime/publishLocal
+./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext ++2.10.6 compilerPlugin/publishLocal runtimeJVM/publishLocal createVersionFile \
+    ++2.12.2 runtimeJVM/publishLocal grpcRuntime/publishLocal
 cd e2e
-sbt ++$SCALA_VERSION clean test
-
+../sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext clean test

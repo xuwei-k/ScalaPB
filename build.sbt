@@ -71,6 +71,16 @@ lazy val runtime = crossProject.crossType(CrossType.Full).in(file("scalapb-runti
     )
   )
   .jsSettings(
+    scalaJSOptimizerOptions ~= { options =>
+      // https://github.com/scala-js/scala-js/issues/2798
+      try {
+        scala.util.Properties.isJavaAtLeast("1.8")
+        options
+      } catch {
+        case _: NumberFormatException =>
+          options.withParallel(false)
+      }
+    },
     // Add JS-specific settings here
     libraryDependencies ++= Seq(
       "com.trueaccord.scalapb" %%% "protobuf-runtime-scala" % "0.1.16"
