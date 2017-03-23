@@ -69,3 +69,8 @@ message Issue137 {
   repeated int32 val = 3;
   repeated int64 var = 4;
 }
+
+enum name {
+  Foo = 1;
+  Bar = 2;
+}
