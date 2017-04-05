@@ -89,7 +89,7 @@ object Int32Value extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.g
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.wrappers.Int32Value(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[Int]).getOrElse(0)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[Int]), 0)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

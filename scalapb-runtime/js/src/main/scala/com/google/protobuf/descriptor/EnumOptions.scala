@@ -81,10 +81,10 @@ final case class EnumOptions(
           unknownFields = _unknownFields__.result()
       )
     }
-    def getAllowAlias: Boolean = allowAlias.getOrElse(false)
+    def getAllowAlias: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(allowAlias, false)
     def clearAllowAlias: EnumOptions = copy(allowAlias = None)
     def withAllowAlias(__v: Boolean): EnumOptions = copy(allowAlias = Some(__v))
-    def getDeprecated: Boolean = deprecated.getOrElse(false)
+    def getDeprecated: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated, false)
     def clearDeprecated: EnumOptions = copy(deprecated = None)
     def withDeprecated(__v: Boolean): EnumOptions = copy(deprecated = Some(__v))
     def clearUninterpretedOption = copy(uninterpretedOption = _root_.scala.collection.Seq.empty)
@@ -101,8 +101,8 @@ final case class EnumOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 2 => allowAlias.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 3 => deprecated.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(allowAlias.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
         case 999 => _root_.scalapb.descriptors.PRepeated(uninterpretedOption.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -127,7 +127,7 @@ object EnumOptions extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.
       com.google.protobuf.descriptor.EnumOptions(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[Boolean]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

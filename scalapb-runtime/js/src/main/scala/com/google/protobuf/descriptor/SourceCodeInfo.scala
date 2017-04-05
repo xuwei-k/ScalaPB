@@ -129,7 +129,7 @@ object SourceCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.SourceCodeInfo(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.SourceCodeInfo.Location]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.SourceCodeInfo.Location]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
@@ -346,10 +346,10 @@ object SourceCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
       def addSpan(__vs: Int*): Location = addAllSpan(__vs)
       def addAllSpan(__vs: TraversableOnce[Int]): Location = copy(span = span ++ __vs)
       def withSpan(__v: _root_.scala.collection.Seq[Int]): Location = copy(span = __v)
-      def getLeadingComments: String = leadingComments.getOrElse("")
+      def getLeadingComments: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(leadingComments, "")
       def clearLeadingComments: Location = copy(leadingComments = None)
       def withLeadingComments(__v: String): Location = copy(leadingComments = Some(__v))
-      def getTrailingComments: String = trailingComments.getOrElse("")
+      def getTrailingComments: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(trailingComments, "")
       def clearTrailingComments: Location = copy(trailingComments = None)
       def withTrailingComments(__v: String): Location = copy(trailingComments = Some(__v))
       def clearLeadingDetachedComments = copy(leadingDetachedComments = _root_.scala.collection.Seq.empty)
@@ -370,8 +370,8 @@ object SourceCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
         (__field.number: @_root_.scala.unchecked) match {
           case 1 => _root_.scalapb.descriptors.PRepeated(path.map(_root_.scalapb.descriptors.PInt(_))(_root_.scala.collection.breakOut))
           case 2 => _root_.scalapb.descriptors.PRepeated(span.map(_root_.scalapb.descriptors.PInt(_))(_root_.scala.collection.breakOut))
-          case 3 => leadingComments.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 4 => trailingComments.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(leadingComments.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+          case 4 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(trailingComments.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
           case 6 => _root_.scalapb.descriptors.PRepeated(leadingDetachedComments.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
         }
       }
@@ -396,11 +396,11 @@ object SourceCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
       case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
         require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
         com.google.protobuf.descriptor.SourceCodeInfo.Location(
-          __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[Int]]).getOrElse(_root_.scala.collection.Seq.empty),
-          __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[Int]]).getOrElse(_root_.scala.collection.Seq.empty),
+          _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[Int]]), _root_.scala.collection.Seq.empty),
+          _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[Int]]), _root_.scala.collection.Seq.empty),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[String]]),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).flatMap(_.as[scala.Option[String]]),
-          __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty)
+          _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty)
         )
       case _ => throw new RuntimeException("Expected PMessage")
     }

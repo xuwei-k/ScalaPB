@@ -69,7 +69,7 @@ final case class EnumValueOptions(
           unknownFields = _unknownFields__.result()
       )
     }
-    def getDeprecated: Boolean = deprecated.getOrElse(false)
+    def getDeprecated: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated, false)
     def clearDeprecated: EnumValueOptions = copy(deprecated = None)
     def withDeprecated(__v: Boolean): EnumValueOptions = copy(deprecated = Some(__v))
     def clearUninterpretedOption = copy(uninterpretedOption = _root_.scala.collection.Seq.empty)
@@ -85,7 +85,7 @@ final case class EnumValueOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => deprecated.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
         case 999 => _root_.scalapb.descriptors.PRepeated(uninterpretedOption.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -108,7 +108,7 @@ object EnumValueOptions extends com.trueaccord.scalapb.GeneratedMessageCompanion
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.EnumValueOptions(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[Boolean]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

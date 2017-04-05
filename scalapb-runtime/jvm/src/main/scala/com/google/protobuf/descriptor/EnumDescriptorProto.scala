@@ -71,14 +71,14 @@ final case class EnumDescriptorProto(
           options = __options
       )
     }
-    def getName: String = name.getOrElse("")
+    def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
     def clearName: EnumDescriptorProto = copy(name = None)
     def withName(__v: String): EnumDescriptorProto = copy(name = Some(__v))
     def clearValue = copy(value = _root_.scala.collection.Seq.empty)
     def addValue(__vs: com.google.protobuf.descriptor.EnumValueDescriptorProto*): EnumDescriptorProto = addAllValue(__vs)
     def addAllValue(__vs: TraversableOnce[com.google.protobuf.descriptor.EnumValueDescriptorProto]): EnumDescriptorProto = copy(value = value ++ __vs)
     def withValue(__v: _root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumValueDescriptorProto]): EnumDescriptorProto = copy(value = __v)
-    def getOptions: com.google.protobuf.descriptor.EnumOptions = options.getOrElse(com.google.protobuf.descriptor.EnumOptions.defaultInstance)
+    def getOptions: com.google.protobuf.descriptor.EnumOptions = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options, com.google.protobuf.descriptor.EnumOptions.defaultInstance)
     def clearOptions: EnumDescriptorProto = copy(options = None)
     def withOptions(__v: com.google.protobuf.descriptor.EnumOptions): EnumDescriptorProto = copy(options = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -91,9 +91,9 @@ final case class EnumDescriptorProto(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         case 2 => _root_.scalapb.descriptors.PRepeated(value.map(_.toPMessage)(_root_.scala.collection.breakOut))
-        case 3 => options.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -128,7 +128,7 @@ object EnumDescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompan
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.EnumDescriptorProto(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[String]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumValueDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumValueDescriptorProto]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[com.google.protobuf.descriptor.EnumOptions]])
       )
     case _ => throw new RuntimeException("Expected PMessage")

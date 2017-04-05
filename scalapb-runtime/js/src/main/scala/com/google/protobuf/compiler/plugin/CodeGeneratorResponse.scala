@@ -70,7 +70,7 @@ final case class CodeGeneratorResponse(
           file = __file.result()
       )
     }
-    def getError: String = error.getOrElse("")
+    def getError: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(error, "")
     def clearError: CodeGeneratorResponse = copy(error = None)
     def withError(__v: String): CodeGeneratorResponse = copy(error = Some(__v))
     def clearFile = copy(file = _root_.scala.collection.Seq.empty)
@@ -86,7 +86,7 @@ final case class CodeGeneratorResponse(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => error.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(error.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         case 15 => _root_.scalapb.descriptors.PRepeated(file.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -109,7 +109,7 @@ object CodeGeneratorResponse extends com.trueaccord.scalapb.GeneratedMessageComp
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.compiler.plugin.CodeGeneratorResponse(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[String]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(15).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.compiler.plugin.CodeGeneratorResponse.File]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(15).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.compiler.plugin.CodeGeneratorResponse.File]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
@@ -238,13 +238,13 @@ object CodeGeneratorResponse extends com.trueaccord.scalapb.GeneratedMessageComp
             content = __content
         )
       }
-      def getName: String = name.getOrElse("")
+      def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
       def clearName: File = copy(name = None)
       def withName(__v: String): File = copy(name = Some(__v))
-      def getInsertionPoint: String = insertionPoint.getOrElse("")
+      def getInsertionPoint: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(insertionPoint, "")
       def clearInsertionPoint: File = copy(insertionPoint = None)
       def withInsertionPoint(__v: String): File = copy(insertionPoint = Some(__v))
-      def getContent: String = content.getOrElse("")
+      def getContent: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(content, "")
       def clearContent: File = copy(content = None)
       def withContent(__v: String): File = copy(content = Some(__v))
       def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -257,9 +257,9 @@ object CodeGeneratorResponse extends com.trueaccord.scalapb.GeneratedMessageComp
       def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
         require(__field.containingMessage eq companion.scalaDescriptor)
         (__field.number: @_root_.scala.unchecked) match {
-          case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 2 => insertionPoint.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 15 => content.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+          case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(insertionPoint.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+          case 15 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(content.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         }
       }
       override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)

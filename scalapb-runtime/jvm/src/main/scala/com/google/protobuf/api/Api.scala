@@ -166,7 +166,7 @@ final case class Api(
     def addAllOptions(__vs: TraversableOnce[com.google.protobuf.`type`.OptionProto]): Api = copy(options = options ++ __vs)
     def withOptions(__v: _root_.scala.collection.Seq[com.google.protobuf.`type`.OptionProto]): Api = copy(options = __v)
     def withVersion(__v: String): Api = copy(version = __v)
-    def getSourceContext: com.google.protobuf.source_context.SourceContext = sourceContext.getOrElse(com.google.protobuf.source_context.SourceContext.defaultInstance)
+    def getSourceContext: com.google.protobuf.source_context.SourceContext = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceContext, com.google.protobuf.source_context.SourceContext.defaultInstance)
     def clearSourceContext: Api = copy(sourceContext = None)
     def withSourceContext(__v: com.google.protobuf.source_context.SourceContext): Api = copy(sourceContext = Some(__v))
     def clearMixins = copy(mixins = _root_.scala.collection.Seq.empty)
@@ -201,7 +201,7 @@ final case class Api(
         case 2 => _root_.scalapb.descriptors.PRepeated(methods.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 3 => _root_.scalapb.descriptors.PRepeated(options.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 4 => _root_.scalapb.descriptors.PString(version)
-        case 5 => sourceContext.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceContext.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
         case 6 => _root_.scalapb.descriptors.PRepeated(mixins.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 7 => _root_.scalapb.descriptors.PEnum(syntax.scalaValueDescriptor)
       }
@@ -249,13 +249,13 @@ object Api extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.google.p
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.api.Api(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]).getOrElse(""),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.api.Method]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.`type`.OptionProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[String]).getOrElse(""),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]), ""),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.api.Method]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.`type`.OptionProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[String]), ""),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).flatMap(_.as[scala.Option[com.google.protobuf.source_context.SourceContext]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.api.Mixin]]).getOrElse(_root_.scala.collection.Seq.empty),
-        com.google.protobuf.`type`.Syntax.fromValue(__fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).map(_.as[_root_.scalapb.descriptors.EnumValueDescriptor]).getOrElse(com.google.protobuf.`type`.Syntax.SYNTAX_PROTO2.scalaValueDescriptor).number)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.api.Mixin]]), _root_.scala.collection.Seq.empty),
+        com.google.protobuf.`type`.Syntax.fromValue(_root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).map(_.as[_root_.scalapb.descriptors.EnumValueDescriptor]), com.google.protobuf.`type`.Syntax.SYNTAX_PROTO2.scalaValueDescriptor).number)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

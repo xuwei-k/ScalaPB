@@ -91,19 +91,19 @@ final case class FieldOptions(
           valueType = __valueType
       )
     }
-    def getType: String = `type`.getOrElse("")
+    def getType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`type`, "")
     def clearType: FieldOptions = copy(`type` = None)
     def withType(__v: String): FieldOptions = copy(`type` = Some(__v))
-    def getScalaName: String = scalaName.getOrElse("")
+    def getScalaName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(scalaName, "")
     def clearScalaName: FieldOptions = copy(scalaName = None)
     def withScalaName(__v: String): FieldOptions = copy(scalaName = Some(__v))
-    def getCollectionType: String = collectionType.getOrElse("")
+    def getCollectionType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(collectionType, "")
     def clearCollectionType: FieldOptions = copy(collectionType = None)
     def withCollectionType(__v: String): FieldOptions = copy(collectionType = Some(__v))
-    def getKeyType: String = keyType.getOrElse("")
+    def getKeyType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(keyType, "")
     def clearKeyType: FieldOptions = copy(keyType = None)
     def withKeyType(__v: String): FieldOptions = copy(keyType = Some(__v))
-    def getValueType: String = valueType.getOrElse("")
+    def getValueType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(valueType, "")
     def clearValueType: FieldOptions = copy(valueType = None)
     def withValueType(__v: String): FieldOptions = copy(valueType = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -118,11 +118,11 @@ final case class FieldOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => `type`.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => scalaName.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 3 => collectionType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 4 => keyType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 5 => valueType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`type`.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(scalaName.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(collectionType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 4 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(keyType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(valueType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)

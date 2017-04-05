@@ -97,7 +97,7 @@ object GeneratedCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanio
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.GeneratedCodeInfo(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.GeneratedCodeInfo.Annotation]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.GeneratedCodeInfo.Annotation]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
@@ -216,13 +216,13 @@ object GeneratedCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanio
       def addPath(__vs: Int*): Annotation = addAllPath(__vs)
       def addAllPath(__vs: TraversableOnce[Int]): Annotation = copy(path = path ++ __vs)
       def withPath(__v: _root_.scala.collection.Seq[Int]): Annotation = copy(path = __v)
-      def getSourceFile: String = sourceFile.getOrElse("")
+      def getSourceFile: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceFile, "")
       def clearSourceFile: Annotation = copy(sourceFile = None)
       def withSourceFile(__v: String): Annotation = copy(sourceFile = Some(__v))
-      def getBegin: Int = begin.getOrElse(0)
+      def getBegin: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(begin, 0)
       def clearBegin: Annotation = copy(begin = None)
       def withBegin(__v: Int): Annotation = copy(begin = Some(__v))
-      def getEnd: Int = end.getOrElse(0)
+      def getEnd: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end, 0)
       def clearEnd: Annotation = copy(end = None)
       def withEnd(__v: Int): Annotation = copy(end = Some(__v))
       def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -237,9 +237,9 @@ object GeneratedCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanio
         require(__field.containingMessage eq companion.scalaDescriptor)
         (__field.number: @_root_.scala.unchecked) match {
           case 1 => _root_.scalapb.descriptors.PRepeated(path.map(_root_.scalapb.descriptors.PInt(_))(_root_.scala.collection.breakOut))
-          case 2 => sourceFile.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 3 => begin.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 4 => end.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceFile.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+          case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(begin.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
+          case 4 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
         }
       }
       override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -276,7 +276,7 @@ object GeneratedCodeInfo extends com.trueaccord.scalapb.GeneratedMessageCompanio
       case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
         require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
         com.google.protobuf.descriptor.GeneratedCodeInfo.Annotation(
-          __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[Int]]).getOrElse(_root_.scala.collection.Seq.empty),
+          _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[Int]]), _root_.scala.collection.Seq.empty),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[String]]),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[Int]]),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).flatMap(_.as[scala.Option[Int]])

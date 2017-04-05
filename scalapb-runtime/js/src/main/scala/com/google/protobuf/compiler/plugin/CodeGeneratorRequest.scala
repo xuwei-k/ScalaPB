@@ -92,7 +92,7 @@ final case class CodeGeneratorRequest(
     def addFileToGenerate(__vs: String*): CodeGeneratorRequest = addAllFileToGenerate(__vs)
     def addAllFileToGenerate(__vs: TraversableOnce[String]): CodeGeneratorRequest = copy(fileToGenerate = fileToGenerate ++ __vs)
     def withFileToGenerate(__v: _root_.scala.collection.Seq[String]): CodeGeneratorRequest = copy(fileToGenerate = __v)
-    def getParameter: String = parameter.getOrElse("")
+    def getParameter: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(parameter, "")
     def clearParameter: CodeGeneratorRequest = copy(parameter = None)
     def withParameter(__v: String): CodeGeneratorRequest = copy(parameter = Some(__v))
     def clearProtoFile = copy(protoFile = _root_.scala.collection.Seq.empty)
@@ -110,7 +110,7 @@ final case class CodeGeneratorRequest(
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
         case 1 => _root_.scalapb.descriptors.PRepeated(fileToGenerate.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
-        case 2 => parameter.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(parameter.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         case 15 => _root_.scalapb.descriptors.PRepeated(protoFile.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -133,9 +133,9 @@ object CodeGeneratorRequest extends com.trueaccord.scalapb.GeneratedMessageCompa
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.compiler.plugin.CodeGeneratorRequest(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[String]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(15).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FileDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(15).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FileDescriptorProto]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

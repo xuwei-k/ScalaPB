@@ -89,7 +89,7 @@ object BoolValue extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.go
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.wrappers.BoolValue(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[Boolean]).getOrElse(false)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[Boolean]), false)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

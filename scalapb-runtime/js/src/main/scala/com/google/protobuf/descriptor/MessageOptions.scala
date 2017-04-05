@@ -141,16 +141,16 @@ final case class MessageOptions(
           unknownFields = _unknownFields__.result()
       )
     }
-    def getMessageSetWireFormat: Boolean = messageSetWireFormat.getOrElse(false)
+    def getMessageSetWireFormat: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(messageSetWireFormat, false)
     def clearMessageSetWireFormat: MessageOptions = copy(messageSetWireFormat = None)
     def withMessageSetWireFormat(__v: Boolean): MessageOptions = copy(messageSetWireFormat = Some(__v))
-    def getNoStandardDescriptorAccessor: Boolean = noStandardDescriptorAccessor.getOrElse(false)
+    def getNoStandardDescriptorAccessor: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(noStandardDescriptorAccessor, false)
     def clearNoStandardDescriptorAccessor: MessageOptions = copy(noStandardDescriptorAccessor = None)
     def withNoStandardDescriptorAccessor(__v: Boolean): MessageOptions = copy(noStandardDescriptorAccessor = Some(__v))
-    def getDeprecated: Boolean = deprecated.getOrElse(false)
+    def getDeprecated: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated, false)
     def clearDeprecated: MessageOptions = copy(deprecated = None)
     def withDeprecated(__v: Boolean): MessageOptions = copy(deprecated = Some(__v))
-    def getMapEntry: Boolean = mapEntry.getOrElse(false)
+    def getMapEntry: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(mapEntry, false)
     def clearMapEntry: MessageOptions = copy(mapEntry = None)
     def withMapEntry(__v: Boolean): MessageOptions = copy(mapEntry = Some(__v))
     def clearUninterpretedOption = copy(uninterpretedOption = _root_.scala.collection.Seq.empty)
@@ -169,10 +169,10 @@ final case class MessageOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => messageSetWireFormat.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => noStandardDescriptorAccessor.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 3 => deprecated.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 7 => mapEntry.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(messageSetWireFormat.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(noStandardDescriptorAccessor.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 7 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(mapEntry.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
         case 999 => _root_.scalapb.descriptors.PRepeated(uninterpretedOption.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -201,7 +201,7 @@ object MessageOptions extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).flatMap(_.as[scala.Option[Boolean]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

@@ -198,10 +198,10 @@ final case class FileDescriptorProto(
           syntax = __syntax
       )
     }
-    def getName: String = name.getOrElse("")
+    def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
     def clearName: FileDescriptorProto = copy(name = None)
     def withName(__v: String): FileDescriptorProto = copy(name = Some(__v))
-    def getPackage: String = `package`.getOrElse("")
+    def getPackage: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`package`, "")
     def clearPackage: FileDescriptorProto = copy(`package` = None)
     def withPackage(__v: String): FileDescriptorProto = copy(`package` = Some(__v))
     def clearDependency = copy(dependency = _root_.scala.collection.Seq.empty)
@@ -232,13 +232,13 @@ final case class FileDescriptorProto(
     def addExtension(__vs: com.google.protobuf.descriptor.FieldDescriptorProto*): FileDescriptorProto = addAllExtension(__vs)
     def addAllExtension(__vs: TraversableOnce[com.google.protobuf.descriptor.FieldDescriptorProto]): FileDescriptorProto = copy(extension = extension ++ __vs)
     def withExtension(__v: _root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]): FileDescriptorProto = copy(extension = __v)
-    def getOptions: com.google.protobuf.descriptor.FileOptions = options.getOrElse(com.google.protobuf.descriptor.FileOptions.defaultInstance)
+    def getOptions: com.google.protobuf.descriptor.FileOptions = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options, com.google.protobuf.descriptor.FileOptions.defaultInstance)
     def clearOptions: FileDescriptorProto = copy(options = None)
     def withOptions(__v: com.google.protobuf.descriptor.FileOptions): FileDescriptorProto = copy(options = Some(__v))
-    def getSourceCodeInfo: com.google.protobuf.descriptor.SourceCodeInfo = sourceCodeInfo.getOrElse(com.google.protobuf.descriptor.SourceCodeInfo.defaultInstance)
+    def getSourceCodeInfo: com.google.protobuf.descriptor.SourceCodeInfo = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceCodeInfo, com.google.protobuf.descriptor.SourceCodeInfo.defaultInstance)
     def clearSourceCodeInfo: FileDescriptorProto = copy(sourceCodeInfo = None)
     def withSourceCodeInfo(__v: com.google.protobuf.descriptor.SourceCodeInfo): FileDescriptorProto = copy(sourceCodeInfo = Some(__v))
-    def getSyntax: String = syntax.getOrElse("")
+    def getSyntax: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(syntax, "")
     def clearSyntax: FileDescriptorProto = copy(syntax = None)
     def withSyntax(__v: String): FileDescriptorProto = copy(syntax = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -260,8 +260,8 @@ final case class FileDescriptorProto(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => `package`.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`package`.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         case 3 => _root_.scalapb.descriptors.PRepeated(dependency.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
         case 10 => _root_.scalapb.descriptors.PRepeated(publicDependency.map(_root_.scalapb.descriptors.PInt(_))(_root_.scala.collection.breakOut))
         case 11 => _root_.scalapb.descriptors.PRepeated(weakDependency.map(_root_.scalapb.descriptors.PInt(_))(_root_.scala.collection.breakOut))
@@ -269,9 +269,9 @@ final case class FileDescriptorProto(
         case 5 => _root_.scalapb.descriptors.PRepeated(enumType.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 6 => _root_.scalapb.descriptors.PRepeated(service.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 7 => _root_.scalapb.descriptors.PRepeated(extension.map(_.toPMessage)(_root_.scala.collection.breakOut))
-        case 8 => options.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 9 => sourceCodeInfo.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 12 => syntax.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 8 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
+        case 9 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(sourceCodeInfo.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
+        case 12 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(syntax.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -334,13 +334,13 @@ object FileDescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompan
       com.google.protobuf.descriptor.FileDescriptorProto(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[String]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[String]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(10).get).map(_.as[_root_.scala.collection.Seq[Int]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(11).get).map(_.as[_root_.scala.collection.Seq[Int]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.ServiceDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(10).get).map(_.as[_root_.scala.collection.Seq[Int]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(11).get).map(_.as[_root_.scala.collection.Seq[Int]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumDescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.ServiceDescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(8).get).flatMap(_.as[scala.Option[com.google.protobuf.descriptor.FileOptions]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(9).get).flatMap(_.as[scala.Option[com.google.protobuf.descriptor.SourceCodeInfo]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(12).get).flatMap(_.as[scala.Option[String]])

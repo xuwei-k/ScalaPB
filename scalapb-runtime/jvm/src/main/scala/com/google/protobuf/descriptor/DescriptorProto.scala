@@ -150,7 +150,7 @@ final case class DescriptorProto(
           reservedName = __reservedName.result()
       )
     }
-    def getName: String = name.getOrElse("")
+    def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
     def clearName: DescriptorProto = copy(name = None)
     def withName(__v: String): DescriptorProto = copy(name = Some(__v))
     def clearField = copy(field = _root_.scala.collection.Seq.empty)
@@ -177,7 +177,7 @@ final case class DescriptorProto(
     def addOneofDecl(__vs: com.google.protobuf.descriptor.OneofDescriptorProto*): DescriptorProto = addAllOneofDecl(__vs)
     def addAllOneofDecl(__vs: TraversableOnce[com.google.protobuf.descriptor.OneofDescriptorProto]): DescriptorProto = copy(oneofDecl = oneofDecl ++ __vs)
     def withOneofDecl(__v: _root_.scala.collection.Seq[com.google.protobuf.descriptor.OneofDescriptorProto]): DescriptorProto = copy(oneofDecl = __v)
-    def getOptions: com.google.protobuf.descriptor.MessageOptions = options.getOrElse(com.google.protobuf.descriptor.MessageOptions.defaultInstance)
+    def getOptions: com.google.protobuf.descriptor.MessageOptions = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options, com.google.protobuf.descriptor.MessageOptions.defaultInstance)
     def clearOptions: DescriptorProto = copy(options = None)
     def withOptions(__v: com.google.protobuf.descriptor.MessageOptions): DescriptorProto = copy(options = Some(__v))
     def clearReservedRange = copy(reservedRange = _root_.scala.collection.Seq.empty)
@@ -205,14 +205,14 @@ final case class DescriptorProto(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
         case 2 => _root_.scalapb.descriptors.PRepeated(field.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 6 => _root_.scalapb.descriptors.PRepeated(extension.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 3 => _root_.scalapb.descriptors.PRepeated(nestedType.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 4 => _root_.scalapb.descriptors.PRepeated(enumType.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 5 => _root_.scalapb.descriptors.PRepeated(extensionRange.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 8 => _root_.scalapb.descriptors.PRepeated(oneofDecl.map(_.toPMessage)(_root_.scala.collection.breakOut))
-        case 7 => options.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 7 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
         case 9 => _root_.scalapb.descriptors.PRepeated(reservedRange.map(_.toPMessage)(_root_.scala.collection.breakOut))
         case 10 => _root_.scalapb.descriptors.PRepeated(reservedName.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
       }
@@ -270,15 +270,15 @@ object DescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.DescriptorProto(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[String]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto.ExtensionRange]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(8).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.OneofDescriptorProto]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.FieldDescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.EnumDescriptorProto]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto.ExtensionRange]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(8).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.OneofDescriptorProto]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).flatMap(_.as[scala.Option[com.google.protobuf.descriptor.MessageOptions]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(9).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto.ReservedRange]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(10).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(9).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.DescriptorProto.ReservedRange]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(10).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
@@ -350,10 +350,10 @@ object DescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[
             end = __end
         )
       }
-      def getStart: Int = start.getOrElse(0)
+      def getStart: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(start, 0)
       def clearStart: ExtensionRange = copy(start = None)
       def withStart(__v: Int): ExtensionRange = copy(start = Some(__v))
-      def getEnd: Int = end.getOrElse(0)
+      def getEnd: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end, 0)
       def clearEnd: ExtensionRange = copy(end = None)
       def withEnd(__v: Int): ExtensionRange = copy(end = Some(__v))
       def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -365,8 +365,8 @@ object DescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[
       def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
         require(__field.containingMessage eq companion.scalaDescriptor)
         (__field.number: @_root_.scala.unchecked) match {
-          case 1 => start.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 2 => end.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(start.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
+          case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
         }
       }
       override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -476,10 +476,10 @@ object DescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[
             end = __end
         )
       }
-      def getStart: Int = start.getOrElse(0)
+      def getStart: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(start, 0)
       def clearStart: ReservedRange = copy(start = None)
       def withStart(__v: Int): ReservedRange = copy(start = Some(__v))
-      def getEnd: Int = end.getOrElse(0)
+      def getEnd: Int = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end, 0)
       def clearEnd: ReservedRange = copy(end = None)
       def withEnd(__v: Int): ReservedRange = copy(end = Some(__v))
       def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -491,8 +491,8 @@ object DescriptorProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[
       def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
         require(__field.containingMessage eq companion.scalaDescriptor)
         (__field.number: @_root_.scala.unchecked) match {
-          case 1 => start.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-          case 2 => end.map(_root_.scalapb.descriptors.PInt(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(start.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
+          case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(end.map(_root_.scalapb.descriptors.PInt(_)), _root_.scalapb.descriptors.PEmpty)
         }
       }
       override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)

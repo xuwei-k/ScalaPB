@@ -107,7 +107,7 @@ object Struct extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.googl
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.struct.Struct(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.struct.Struct.FieldsEntry]]).getOrElse(_root_.scala.collection.Seq.empty).map(com.google.protobuf.struct.Struct._typemapper_fields.toCustom(_))(_root_.scala.collection.breakOut)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.struct.Struct.FieldsEntry]]), _root_.scala.collection.Seq.empty).map(com.google.protobuf.struct.Struct._typemapper_fields.toCustom(_))(_root_.scala.collection.breakOut)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }
@@ -178,7 +178,7 @@ object Struct extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.googl
         )
       }
       def withKey(__v: String): FieldsEntry = copy(key = __v)
-      def getValue: com.google.protobuf.struct.Value = value.getOrElse(com.google.protobuf.struct.Value.defaultInstance)
+      def getValue: com.google.protobuf.struct.Value = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(value, com.google.protobuf.struct.Value.defaultInstance)
       def clearValue: FieldsEntry = copy(value = None)
       def withValue(__v: com.google.protobuf.struct.Value): FieldsEntry = copy(value = Some(__v))
       def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -194,7 +194,7 @@ object Struct extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.googl
         require(__field.containingMessage eq companion.scalaDescriptor)
         (__field.number: @_root_.scala.unchecked) match {
           case 1 => _root_.scalapb.descriptors.PString(key)
-          case 2 => value.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+          case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(value.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
         }
       }
       override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -215,7 +215,7 @@ object Struct extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.googl
       case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
         require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
         com.google.protobuf.struct.Struct.FieldsEntry(
-          __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]).getOrElse(""),
+          _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]), ""),
           __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[com.google.protobuf.struct.Value]])
         )
       case _ => throw new RuntimeException("Expected PMessage")

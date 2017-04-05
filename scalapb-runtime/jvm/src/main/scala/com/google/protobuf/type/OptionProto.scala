@@ -70,7 +70,7 @@ final case class OptionProto(
       )
     }
     def withName(__v: String): OptionProto = copy(name = __v)
-    def getValue: com.google.protobuf.any.Any = value.getOrElse(com.google.protobuf.any.Any.defaultInstance)
+    def getValue: com.google.protobuf.any.Any = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(value, com.google.protobuf.any.Any.defaultInstance)
     def clearValue: OptionProto = copy(value = None)
     def withValue(__v: com.google.protobuf.any.Any): OptionProto = copy(value = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -86,7 +86,7 @@ final case class OptionProto(
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
         case 1 => _root_.scalapb.descriptors.PString(name)
-        case 2 => value.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(value.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -117,7 +117,7 @@ object OptionProto extends com.trueaccord.scalapb.GeneratedMessageCompanion[com.
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.`type`.OptionProto(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]).getOrElse(""),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).map(_.as[String]), ""),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[com.google.protobuf.any.Any]])
       )
     case _ => throw new RuntimeException("Expected PMessage")

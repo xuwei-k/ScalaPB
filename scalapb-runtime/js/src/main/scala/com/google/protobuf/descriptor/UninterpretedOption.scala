@@ -118,22 +118,22 @@ final case class UninterpretedOption(
     def addName(__vs: com.google.protobuf.descriptor.UninterpretedOption.NamePart*): UninterpretedOption = addAllName(__vs)
     def addAllName(__vs: TraversableOnce[com.google.protobuf.descriptor.UninterpretedOption.NamePart]): UninterpretedOption = copy(name = name ++ __vs)
     def withName(__v: _root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption.NamePart]): UninterpretedOption = copy(name = __v)
-    def getIdentifierValue: String = identifierValue.getOrElse("")
+    def getIdentifierValue: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(identifierValue, "")
     def clearIdentifierValue: UninterpretedOption = copy(identifierValue = None)
     def withIdentifierValue(__v: String): UninterpretedOption = copy(identifierValue = Some(__v))
-    def getPositiveIntValue: Long = positiveIntValue.getOrElse(0L)
+    def getPositiveIntValue: Long = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(positiveIntValue, 0L)
     def clearPositiveIntValue: UninterpretedOption = copy(positiveIntValue = None)
     def withPositiveIntValue(__v: Long): UninterpretedOption = copy(positiveIntValue = Some(__v))
-    def getNegativeIntValue: Long = negativeIntValue.getOrElse(0L)
+    def getNegativeIntValue: Long = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(negativeIntValue, 0L)
     def clearNegativeIntValue: UninterpretedOption = copy(negativeIntValue = None)
     def withNegativeIntValue(__v: Long): UninterpretedOption = copy(negativeIntValue = Some(__v))
-    def getDoubleValue: Double = doubleValue.getOrElse(0.0)
+    def getDoubleValue: Double = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(doubleValue, 0.0)
     def clearDoubleValue: UninterpretedOption = copy(doubleValue = None)
     def withDoubleValue(__v: Double): UninterpretedOption = copy(doubleValue = Some(__v))
-    def getStringValue: _root_.com.google.protobuf.ByteString = stringValue.getOrElse(_root_.com.google.protobuf.ByteString.EMPTY)
+    def getStringValue: _root_.com.google.protobuf.ByteString = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(stringValue, _root_.com.google.protobuf.ByteString.EMPTY)
     def clearStringValue: UninterpretedOption = copy(stringValue = None)
     def withStringValue(__v: _root_.com.google.protobuf.ByteString): UninterpretedOption = copy(stringValue = Some(__v))
-    def getAggregateValue: String = aggregateValue.getOrElse("")
+    def getAggregateValue: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(aggregateValue, "")
     def clearAggregateValue: UninterpretedOption = copy(aggregateValue = None)
     def withAggregateValue(__v: String): UninterpretedOption = copy(aggregateValue = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -151,12 +151,12 @@ final case class UninterpretedOption(
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
         case 2 => _root_.scalapb.descriptors.PRepeated(name.map(_.toPMessage)(_root_.scala.collection.breakOut))
-        case 3 => identifierValue.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 4 => positiveIntValue.map(_root_.scalapb.descriptors.PLong(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 5 => negativeIntValue.map(_root_.scalapb.descriptors.PLong(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 6 => doubleValue.map(_root_.scalapb.descriptors.PDouble(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 7 => stringValue.map(_root_.scalapb.descriptors.PByteString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 8 => aggregateValue.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(identifierValue.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 4 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(positiveIntValue.map(_root_.scalapb.descriptors.PLong(_)), _root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(negativeIntValue.map(_root_.scalapb.descriptors.PLong(_)), _root_.scalapb.descriptors.PEmpty)
+        case 6 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(doubleValue.map(_root_.scalapb.descriptors.PDouble(_)), _root_.scalapb.descriptors.PEmpty)
+        case 7 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(stringValue.map(_root_.scalapb.descriptors.PByteString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 8 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(aggregateValue.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -182,7 +182,7 @@ object UninterpretedOption extends com.trueaccord.scalapb.GeneratedMessageCompan
     case _root_.scalapb.descriptors.PMessage(__fieldsMap) =>
       require(__fieldsMap.keys.forall(_.containingMessage == scalaDescriptor), "FieldDescriptor does not match message type.")
       com.google.protobuf.descriptor.UninterpretedOption(
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption.NamePart]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption.NamePart]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[String]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).flatMap(_.as[scala.Option[Long]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).flatMap(_.as[scala.Option[Long]]),

@@ -104,22 +104,22 @@ final case class MethodDescriptorProto(
           serverStreaming = __serverStreaming
       )
     }
-    def getName: String = name.getOrElse("")
+    def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
     def clearName: MethodDescriptorProto = copy(name = None)
     def withName(__v: String): MethodDescriptorProto = copy(name = Some(__v))
-    def getInputType: String = inputType.getOrElse("")
+    def getInputType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(inputType, "")
     def clearInputType: MethodDescriptorProto = copy(inputType = None)
     def withInputType(__v: String): MethodDescriptorProto = copy(inputType = Some(__v))
-    def getOutputType: String = outputType.getOrElse("")
+    def getOutputType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(outputType, "")
     def clearOutputType: MethodDescriptorProto = copy(outputType = None)
     def withOutputType(__v: String): MethodDescriptorProto = copy(outputType = Some(__v))
-    def getOptions: com.google.protobuf.descriptor.MethodOptions = options.getOrElse(com.google.protobuf.descriptor.MethodOptions.defaultInstance)
+    def getOptions: com.google.protobuf.descriptor.MethodOptions = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options, com.google.protobuf.descriptor.MethodOptions.defaultInstance)
     def clearOptions: MethodDescriptorProto = copy(options = None)
     def withOptions(__v: com.google.protobuf.descriptor.MethodOptions): MethodDescriptorProto = copy(options = Some(__v))
-    def getClientStreaming: Boolean = clientStreaming.getOrElse(false)
+    def getClientStreaming: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(clientStreaming, false)
     def clearClientStreaming: MethodDescriptorProto = copy(clientStreaming = None)
     def withClientStreaming(__v: Boolean): MethodDescriptorProto = copy(clientStreaming = Some(__v))
-    def getServerStreaming: Boolean = serverStreaming.getOrElse(false)
+    def getServerStreaming: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(serverStreaming, false)
     def clearServerStreaming: MethodDescriptorProto = copy(serverStreaming = None)
     def withServerStreaming(__v: Boolean): MethodDescriptorProto = copy(serverStreaming = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -135,12 +135,12 @@ final case class MethodDescriptorProto(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => inputType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 3 => outputType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 4 => options.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 5 => clientStreaming.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 6 => serverStreaming.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(inputType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(outputType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 4 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(clientStreaming.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 6 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(serverStreaming.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)

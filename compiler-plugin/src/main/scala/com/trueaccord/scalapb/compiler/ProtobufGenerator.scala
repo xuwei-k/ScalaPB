@@ -334,7 +334,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
             val e = toBaseFieldTypeWithScalaDescriptors(f).andThen(singleFieldAsPvalue(f))
               .apply(fieldAccessorSymbol(f), enclosingType = f.enclosingType)
             if (f.supportsPresence || f.isInOneof) {
-              fp.add(s"case ${f.getNumber} => $e.getOrElse(_root_.scalapb.descriptors.PEmpty)")
+              fp.add(s"case ${f.getNumber} => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse($e, _root_.scalapb.descriptors.PEmpty)")
             } else if (f.isRepeated) {
               fp.add(s"case ${f.getNumber} => _root_.scalapb.descriptors.PRepeated($e)")
             } else {
@@ -777,7 +777,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
                 val e = s"__fieldsMap.get(__fields.get(${field.getIndex})).asInstanceOf[scala.Option[$typeName]]"
                 (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, EnclosingType.ScalaOption)
             } mkString (" orElse\n")
-            s"${oneOf.scalaName.asSymbol} = $elems getOrElse ${oneOf.empty}"
+            s"${oneOf.scalaName.asSymbol} = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse($elems, ${oneOf.empty})"
         }
         printer.addWithDelimiter(",")(fields ++ oneOfs)
     }
@@ -811,14 +811,14 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               val e = if (field.supportsPresence)
                 s"$value.flatMap(_.as[$baseTypeName])"
               else if (field.isRepeated)
-                s"$value.map(_.as[${baseTypeName}]).getOrElse(${field.collectionType}.empty)"
+                s"_root_.com.trueaccord.scalapb.OptionUtil.getOrElse($value.map(_.as[${baseTypeName}]), ${field.collectionType}.empty)"
               else if (field.isRequired)
                 s"$value.get.as[$baseTypeName]"
               else {
                 // This is for proto3, no default value.
                 val t = defaultValueForGet(field, uncustomized = true) + (if (field.isEnum)
                   ".scalaValueDescriptor" else "")
-                s"$value.map(_.as[$baseTypeName]).getOrElse($t)"
+                s"_root_.com.trueaccord.scalapb.OptionUtil.getOrElse($value.map(_.as[$baseTypeName]), $t)"
               }
 
               transform(field).apply(e, enclosingType = field.enclosingType)
@@ -832,7 +832,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
                   val e = s"$value.flatMap(_.as[scala.Option[$typeName]])"
                   (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, EnclosingType.ScalaOption)
               } mkString (" orElse\n")
-              s"${oneOf.scalaName.asSymbol} = $elems getOrElse ${oneOf.empty}"
+              s"${oneOf.scalaName.asSymbol} = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse($elems, ${oneOf.empty})"
           }
           printer.addWithDelimiter(",")(fields ++ oneOfs)
       }
@@ -1104,7 +1104,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
             .when(field.supportsPresence || field.isInOneof) {
               p =>
                 val default = defaultValueForGet(field)
-                p.add(s"def ${field.getMethod}: ${field.singleScalaTypeName} = ${fieldAccessorSymbol(field)}.getOrElse($default)")
+                p.add(s"def ${field.getMethod}: ${field.singleScalaTypeName} = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(${fieldAccessorSymbol(field)}, $default)")
             }
             .when(field.supportsPresence) {
               p =>

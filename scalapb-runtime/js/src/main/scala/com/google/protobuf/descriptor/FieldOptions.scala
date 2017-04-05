@@ -166,22 +166,22 @@ final case class FieldOptions(
           unknownFields = _unknownFields__.result()
       )
     }
-    def getCtype: com.google.protobuf.descriptor.FieldOptions.CType = ctype.getOrElse(com.google.protobuf.descriptor.FieldOptions.CType.STRING)
+    def getCtype: com.google.protobuf.descriptor.FieldOptions.CType = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(ctype, com.google.protobuf.descriptor.FieldOptions.CType.STRING)
     def clearCtype: FieldOptions = copy(ctype = None)
     def withCtype(__v: com.google.protobuf.descriptor.FieldOptions.CType): FieldOptions = copy(ctype = Some(__v))
-    def getPacked: Boolean = packed.getOrElse(false)
+    def getPacked: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(packed, false)
     def clearPacked: FieldOptions = copy(packed = None)
     def withPacked(__v: Boolean): FieldOptions = copy(packed = Some(__v))
-    def getJstype: com.google.protobuf.descriptor.FieldOptions.JSType = jstype.getOrElse(com.google.protobuf.descriptor.FieldOptions.JSType.JS_NORMAL)
+    def getJstype: com.google.protobuf.descriptor.FieldOptions.JSType = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(jstype, com.google.protobuf.descriptor.FieldOptions.JSType.JS_NORMAL)
     def clearJstype: FieldOptions = copy(jstype = None)
     def withJstype(__v: com.google.protobuf.descriptor.FieldOptions.JSType): FieldOptions = copy(jstype = Some(__v))
-    def getLazy: Boolean = `lazy`.getOrElse(false)
+    def getLazy: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`lazy`, false)
     def clearLazy: FieldOptions = copy(`lazy` = None)
     def withLazy(__v: Boolean): FieldOptions = copy(`lazy` = Some(__v))
-    def getDeprecated: Boolean = deprecated.getOrElse(false)
+    def getDeprecated: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated, false)
     def clearDeprecated: FieldOptions = copy(deprecated = None)
     def withDeprecated(__v: Boolean): FieldOptions = copy(deprecated = Some(__v))
-    def getWeak: Boolean = weak.getOrElse(false)
+    def getWeak: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(weak, false)
     def clearWeak: FieldOptions = copy(weak = None)
     def withWeak(__v: Boolean): FieldOptions = copy(weak = Some(__v))
     def clearUninterpretedOption = copy(uninterpretedOption = _root_.scala.collection.Seq.empty)
@@ -202,12 +202,12 @@ final case class FieldOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => ctype.map(__e => _root_.scalapb.descriptors.PEnum(__e.scalaValueDescriptor)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => packed.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 6 => jstype.map(__e => _root_.scalapb.descriptors.PEnum(__e.scalaValueDescriptor)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 5 => `lazy`.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 3 => deprecated.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 10 => weak.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(ctype.map(__e => _root_.scalapb.descriptors.PEnum(__e.scalaValueDescriptor)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(packed.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 6 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(jstype.map(__e => _root_.scalapb.descriptors.PEnum(__e.scalaValueDescriptor)), _root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(`lazy`.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 3 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(deprecated.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 10 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(weak.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
         case 999 => _root_.scalapb.descriptors.PRepeated(uninterpretedOption.map(_.toPMessage)(_root_.scala.collection.breakOut))
       }
     }
@@ -240,7 +240,7 @@ object FieldOptions extends com.trueaccord.scalapb.GeneratedMessageCompanion[com
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(10).get).flatMap(_.as[scala.Option[Boolean]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]).getOrElse(_root_.scala.collection.Seq.empty)
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(999).get).map(_.as[_root_.scala.collection.Seq[com.google.protobuf.descriptor.UninterpretedOption]]), _root_.scala.collection.Seq.empty)
       )
     case _ => throw new RuntimeException("Expected PMessage")
   }

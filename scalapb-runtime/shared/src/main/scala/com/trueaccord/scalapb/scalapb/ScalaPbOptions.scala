@@ -140,10 +140,10 @@ final case class ScalaPbOptions(
           collectionType = __collectionType
       )
     }
-    def getPackageName: String = packageName.getOrElse("")
+    def getPackageName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(packageName, "")
     def clearPackageName: ScalaPbOptions = copy(packageName = None)
     def withPackageName(__v: String): ScalaPbOptions = copy(packageName = Some(__v))
-    def getFlatPackage: Boolean = flatPackage.getOrElse(false)
+    def getFlatPackage: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(flatPackage, false)
     def clearFlatPackage: ScalaPbOptions = copy(flatPackage = None)
     def withFlatPackage(__v: Boolean): ScalaPbOptions = copy(flatPackage = Some(__v))
     def clearImport = copy(`import` = _root_.scala.collection.Seq.empty)
@@ -154,16 +154,16 @@ final case class ScalaPbOptions(
     def addPreamble(__vs: String*): ScalaPbOptions = addAllPreamble(__vs)
     def addAllPreamble(__vs: TraversableOnce[String]): ScalaPbOptions = copy(preamble = preamble ++ __vs)
     def withPreamble(__v: _root_.scala.collection.Seq[String]): ScalaPbOptions = copy(preamble = __v)
-    def getSingleFile: Boolean = singleFile.getOrElse(false)
+    def getSingleFile: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(singleFile, false)
     def clearSingleFile: ScalaPbOptions = copy(singleFile = None)
     def withSingleFile(__v: Boolean): ScalaPbOptions = copy(singleFile = Some(__v))
-    def getNoPrimitiveWrappers: Boolean = noPrimitiveWrappers.getOrElse(false)
+    def getNoPrimitiveWrappers: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(noPrimitiveWrappers, false)
     def clearNoPrimitiveWrappers: ScalaPbOptions = copy(noPrimitiveWrappers = None)
     def withNoPrimitiveWrappers(__v: Boolean): ScalaPbOptions = copy(noPrimitiveWrappers = Some(__v))
-    def getPrimitiveWrappers: Boolean = primitiveWrappers.getOrElse(false)
+    def getPrimitiveWrappers: Boolean = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(primitiveWrappers, false)
     def clearPrimitiveWrappers: ScalaPbOptions = copy(primitiveWrappers = None)
     def withPrimitiveWrappers(__v: Boolean): ScalaPbOptions = copy(primitiveWrappers = Some(__v))
-    def getCollectionType: String = collectionType.getOrElse("")
+    def getCollectionType: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(collectionType, "")
     def clearCollectionType: ScalaPbOptions = copy(collectionType = None)
     def withCollectionType(__v: String): ScalaPbOptions = copy(collectionType = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -181,14 +181,14 @@ final case class ScalaPbOptions(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => packageName.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => flatPackage.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(packageName.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(flatPackage.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
         case 3 => _root_.scalapb.descriptors.PRepeated(`import`.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
         case 4 => _root_.scalapb.descriptors.PRepeated(preamble.map(_root_.scalapb.descriptors.PString(_))(_root_.scala.collection.breakOut))
-        case 5 => singleFile.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 7 => noPrimitiveWrappers.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 6 => primitiveWrappers.map(_root_.scalapb.descriptors.PBoolean(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 8 => collectionType.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 5 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(singleFile.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 7 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(noPrimitiveWrappers.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 6 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(primitiveWrappers.map(_root_.scalapb.descriptors.PBoolean(_)), _root_.scalapb.descriptors.PEmpty)
+        case 8 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(collectionType.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
@@ -217,8 +217,8 @@ object ScalaPbOptions extends com.trueaccord.scalapb.GeneratedMessageCompanion[c
       com.trueaccord.scalapb.scalapb.ScalaPbOptions(
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(1).get).flatMap(_.as[scala.Option[String]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(2).get).flatMap(_.as[scala.Option[Boolean]]),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty),
-        __fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[String]]).getOrElse(_root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(3).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty),
+        _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(__fieldsMap.get(scalaDescriptor.findFieldByNumber(4).get).map(_.as[_root_.scala.collection.Seq[String]]), _root_.scala.collection.Seq.empty),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(5).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(7).get).flatMap(_.as[scala.Option[Boolean]]),
         __fieldsMap.get(scalaDescriptor.findFieldByNumber(6).get).flatMap(_.as[scala.Option[Boolean]]),

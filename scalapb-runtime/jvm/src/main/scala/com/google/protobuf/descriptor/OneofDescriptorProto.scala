@@ -60,10 +60,10 @@ final case class OneofDescriptorProto(
           options = __options
       )
     }
-    def getName: String = name.getOrElse("")
+    def getName: String = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name, "")
     def clearName: OneofDescriptorProto = copy(name = None)
     def withName(__v: String): OneofDescriptorProto = copy(name = Some(__v))
-    def getOptions: com.google.protobuf.descriptor.OneofOptions = options.getOrElse(com.google.protobuf.descriptor.OneofOptions.defaultInstance)
+    def getOptions: com.google.protobuf.descriptor.OneofOptions = _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options, com.google.protobuf.descriptor.OneofOptions.defaultInstance)
     def clearOptions: OneofDescriptorProto = copy(options = None)
     def withOptions(__v: com.google.protobuf.descriptor.OneofOptions): OneofDescriptorProto = copy(options = Some(__v))
     def getFieldByNumber(__fieldNumber: Int): scala.Any = {
@@ -75,8 +75,8 @@ final case class OneofDescriptorProto(
     def getField(__field: _root_.scalapb.descriptors.FieldDescriptor): _root_.scalapb.descriptors.PValue = {
       require(__field.containingMessage eq companion.scalaDescriptor)
       (__field.number: @_root_.scala.unchecked) match {
-        case 1 => name.map(_root_.scalapb.descriptors.PString(_)).getOrElse(_root_.scalapb.descriptors.PEmpty)
-        case 2 => options.map(_.toPMessage).getOrElse(_root_.scalapb.descriptors.PEmpty)
+        case 1 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(name.map(_root_.scalapb.descriptors.PString(_)), _root_.scalapb.descriptors.PEmpty)
+        case 2 => _root_.com.trueaccord.scalapb.OptionUtil.getOrElse(options.map(_.toPMessage), _root_.scalapb.descriptors.PEmpty)
       }
     }
     override def toString: String = _root_.com.trueaccord.scalapb.TextFormat.printToUnicodeString(this)
