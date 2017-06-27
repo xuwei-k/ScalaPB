@@ -23,7 +23,19 @@ case class PFloat(value: Float) extends AnyVal with PValue
 
 case class PByteString(value: ByteString) extends AnyVal with PValue
 
-case class PBoolean(value: Boolean) extends AnyVal with PValue
+sealed abstract class PBoolean(val value: Boolean) extends PValue
+
+object PBoolean extends (Boolean => PBoolean) {
+  def apply(value: Boolean): PBoolean =
+    if (value) PTrue
+    else PFalse
+  def unapply(value: PBoolean): Option[Boolean] =
+    Some(value.value)
+}
+
+case object PTrue extends PBoolean(true)
+
+case object PFalse extends PBoolean(false)
 
 case class PEnum(value: EnumValueDescriptor) extends AnyVal with PValue
 
