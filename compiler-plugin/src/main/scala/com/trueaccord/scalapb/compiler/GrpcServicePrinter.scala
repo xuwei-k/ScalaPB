@@ -245,12 +245,11 @@ final class GrpcServicePrinter(service: ServiceDescriptor, override val params: 
   }
 
   private[this] val bindService = {
-    val executionContext = "executionContext"
     val methods = service.methods.map(addMethodImplementation)
     val serverServiceDef = "_root_.io.grpc.ServerServiceDefinition"
 
     PrinterEndo(
-      _.add(s"""def bindService(serviceImpl: ${service.name}, $executionContext: scala.concurrent.ExecutionContext): $serverServiceDef =""")
+      _.add(s"""def bindService(serviceImpl: ${service.name}): $serverServiceDef =""")
         .indent
         .add(s"""$serverServiceDef.builder(${service.descriptorName})""")
         .call(methods: _*)
