@@ -8,30 +8,9 @@ scala:
 - 2.12.2
 
 env:
-- TEST_SCRIPT=e2e.sh E2E_SHADED=0
 - TEST_SCRIPT=e2e.sh E2E_SHADED=1
-- TEST_SCRIPT=proptest.sh
 
 matrix:
-  exclude:
-  - scala: 2.10.6
-    env: TEST_SCRIPT=e2e.sh E2E_SHADED=0
-  - scala: 2.10.6
-    env: TEST_SCRIPT=e2e.sh E2E_SHADED=1
-  include:
-  - scala: 2.11.12
-    env: SCALA_NATIVE
-    before_install:
-    - curl https://raw.githubusercontent.com/scala-native/scala-native/9069e8d447f7a9/bin/travis_setup.sh | bash -x
-    script:
-    - sbt runtimeNative/test "show runtimeNative/nativeMissingDependencies"
-
-  - scala: 2.11.12
-    env: TEST_SCRIPT=__misc__
-    script:
-    - cd examples && sbt test && cd ..
-    - sbt -J-Xmx4500M ++$TRAVIS_SCALA_VERSION universal:packageBin
-    - ./test_generated_code_checked_in.sh
 
 # These directories are cached to S3 at the end of the build
 cache:
@@ -46,16 +25,3 @@ before_cache:
 # Tricks to avoid unnecessary cache updates
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt -name "*.lock" -print -delete
-
-deploy:
-  provider: releases
-  api_key:
-    secure: ZHv5KXgAHNvO6ZS2cv5SdQ43UMjcc1Bm7p9Q66z4NJoLNq5SY/Ln9ZFeUgoBMv+1SPvzL0GRWLxBxa4UYuFgFwRywlU8hQ1GF0ztZ35bvZUrFvTWp4sM62sdmSogHFDmgpG58IPNeQSPcZ+sYFhlWzvAz9hUCXzPPu6jeZSanew=
-  file: scalapbc/target/universal/scalapbc-${TRAVIS_TAG:1}.zip
-  skip_cleanup: true
-  on:
-    repo: scalapb/ScalaPB
-    tags: true
-    scala: 2.11.12
-    condition: "$TEST_SCRIPT = __misc__"
-

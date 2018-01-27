@@ -11,5 +11,5 @@ fi
 sbt ++2.10.6 compilerPlugin/publishLocal compilerPluginShaded/publishLocal createVersionFile \
     ++$SCALA_VERSION runtimeJVM/publishLocal grpcRuntime/publishLocal
 cd e2e
-sbt ++$SCALA_VERSION noJava/clean clean noJava/test test
+sbt ++$SCALA_VERSION noJava/clean clean noJava/test rootJVM/test rootJS/test
 

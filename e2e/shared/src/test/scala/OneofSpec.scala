@@ -20,16 +20,16 @@ class OneofSpec extends FlatSpec with GeneratorDrivenPropertyChecks with MustMat
   }
 
   "oneof.isX function" should "return correct value" in {
-    unspecified.myOneOf shouldBe 'isEmpty
-    unspecified.myOneOf should not be 'isDefined
-    unspecified.myOneOf should not be 'isTempField
-    unspecified.myOneOf should not be 'isOtherField
-    unspecified.myOneOf should not be 'isSub
-    tempField.myOneOf shouldBe 'isTempField
-    tempField.myOneOf shouldBe 'isDefined
-    tempField.myOneOf should not be 'isEmpty
-    tempField.myOneOf should not be 'isOtherField
-    tempField.myOneOf should not be 'isSub
+    unspecified.myOneOf.isEmpty shouldBe true
+    unspecified.myOneOf.isDefined shouldBe false
+    unspecified.myOneOf.isTempField shouldBe false
+    unspecified.myOneOf.isOtherField shouldBe false
+    unspecified.myOneOf.isSub shouldBe false
+    tempField.myOneOf.isTempField shouldBe true
+    tempField.myOneOf.isDefined shouldBe true
+    tempField.myOneOf.isEmpty shouldBe false
+    tempField.myOneOf.isOtherField shouldBe false
+    tempField.myOneOf.isSub shouldBe false
   }
 
   "oneof.number function" should "return correct value" in {
