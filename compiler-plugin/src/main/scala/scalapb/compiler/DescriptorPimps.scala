@@ -129,17 +129,24 @@ trait DescriptorPimps {
 
     def collectionBuilder: String = {
       require(fd.isRepeated)
-      val t = if (fd.fieldOptions.hasCollectionType) fd.fieldOptions.getCollectionType
-      else if (fd.getFile.scalaOptions.hasCollectionType) fd.getFile.scalaOptions.getCollectionType
-      else "_root_.scala.collection.immutable.Vector"
-
-      s"$t.newBuilder[$singleScalaTypeName]"
+      if (isMapField) {
+        val t = if (fd.fieldOptions.hasCollectionType) fd.fieldOptions.getCollectionType
+        else if (fd.getFile.scalaOptions.hasCollectionType) fd.getFile.scalaOptions.getCollectionType
+        else "_root_.scala.collection.immutable.Map"
+        s"$t.newBuilder[$singleScalaTypeName]" // TODO
+      } else {
+        val t = if (fd.fieldOptions.hasCollectionType) fd.fieldOptions.getCollectionType
+        else if (fd.getFile.scalaOptions.hasCollectionType) fd.getFile.scalaOptions.getCollectionType
+        else "_root_.scala.collection.immutable.Vector"
+        s"$t.newBuilder[$singleScalaTypeName]"
+      }
     }
 
     def collectionType: String = {
       require(fd.isRepeated)
       if (fd.fieldOptions.hasCollectionType) fd.fieldOptions.getCollectionType
       else if (fd.getFile.scalaOptions.hasCollectionType) fd.getFile.scalaOptions.getCollectionType
+      else if (isMapField)  "_root_.scala.collection.immutable.Map"
       else "_root_.scala.collection.Seq"
     }
 

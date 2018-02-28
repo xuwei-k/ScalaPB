@@ -177,7 +177,6 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
 
   def defaultValueForDefaultInstance(field: FieldDescriptor) =
     if (field.supportsPresence) "None"
-    else if (field.isMapField) "scala.collection.immutable.Map.empty"
     else if (field.isRepeated) field.collectionType + ".empty"
     else defaultValueForGet(field)
 
@@ -226,7 +225,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
     def unitConversion(n: String, field: FieldDescriptor) = javaToScalaConversion(field).apply(n, EnclosingType.None)
     val upperJavaName = if (field.mapType.valueField.isEnum && field.getFile.isProto3)
       (field.upperJavaName + "Value") else field.upperJavaName
-    s"${container}.get${upperJavaName}Map.asScala.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)})).toMap"
+    s"${container}.get${upperJavaName}Map.asScala.map(__pv => (${unitConversion("__pv._1", field.mapType.keyField)}, ${unitConversion("__pv._2", field.mapType.valueField)})).to[({type l[a] = ${field.collectionType}[${field.mapType.keyField}, ${field.mapType.valueField}]})#l]"
   }
 
   def scalaToJava(field: FieldDescriptor, boxPrimitives: Boolean): Expression = {
@@ -602,8 +601,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       val ctorDefaultValue =
         if (field.isOptional && field.supportsPresence) " = None"
         else if (field.isSingular && !field.isRequired) " = " + defaultValueForGet(field)
-        else if (field.isMapField) " = scala.collection.immutable.Map.empty"
-        else if (field.isRepeated) s" = ${field.collectionType}.empty"
+        else if (field.isRepeated || field.isMapField) s" = ${field.collectionType}.empty"
         else ""
         s"${annotations(field)}${field.scalaName.asSymbol}: $typeName$ctorDefaultValue"
     }
@@ -628,7 +626,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         if (!field.isRepeated)
           printer.add(s"var __${field.scalaName} = this.${field.scalaName.asSymbol}")
         else if (field.isMapField)
-          printer.add(s"val __${field.scalaName} = (scala.collection.immutable.Map.newBuilder[${field.mapType.keyType}, ${field.mapType.valueType}] ++= this.${field.scalaName.asSymbol})")
+          printer.add(s"val __${field.scalaName} = (${field.collectionType}.newBuilder[${field.mapType.keyType}, ${field.mapType.valueType}] ++= this.${field.scalaName.asSymbol})")
         else
           printer.add(s"val __${field.scalaName} = (${field.collectionBuilder} ++= this.${field.scalaName.asSymbol})")
       )
@@ -1230,7 +1228,7 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               p.add(
                 s"""def $withMethod(__v: ${singleType}): ${message.nameSymbol} = copy(${field.getContainingOneof.scalaName.asSymbol} = ${field.oneOfTypeName}(__v))""")
           }.when(field.isRepeated) { p =>
-            val emptyValue = if (field.isMapField) "scala.collection.immutable.Map.empty" else field.collectionType + ".empty"
+            val emptyValue = field.collectionType + ".empty"
             p.addStringMargin(
               s"""def $clearMethod = copy(${field.scalaName.asSymbol} = $emptyValue)
                  |def add${field.upperScalaName}(__vs: $singleType*): ${message.nameSymbol} = addAll${field.upperScalaName}(__vs)
