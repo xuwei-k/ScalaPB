@@ -796,7 +796,15 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
       printer =>
         val fields = message.fields.collect {
           case field if !field.isInOneof =>
-            val baseTypeName = field.typeCategory(if (field.isEnum) "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor" else field.baseSingleScalaTypeName)
+            val baseTypeName = field.typeCategory(
+              if (field.isEnum) {
+                "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor"
+              } else if(field.isMapField) {
+                s"${field.mapType.keyType}, ${field.mapType.valueType}"
+              } else {
+                field.baseSingleScalaTypeName
+              }
+            )
             val e = if (field.supportsPresence)
               s"__fieldsMap.get(__fields.get(${field.getIndex})).asInstanceOf[$baseTypeName]"
             else if (field.isRepeated)
@@ -816,7 +824,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
           oneOf =>
             val elems = oneOf.fields.map {
               field =>
-                val typeName = if (field.isEnum) "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor" else field.baseSingleScalaTypeName
+                val typeName = if (field.isEnum) {
+                  "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor"
+                } else if(field.isMapField) {
+                  s"${field.mapType.keyType}, ${field.mapType.valueType}"
+                } else {
+                  field.baseSingleScalaTypeName
+                }
                 val e = s"__fieldsMap.get(__fields.get(${field.getIndex})).asInstanceOf[scala.Option[$typeName]]"
                 (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, EnclosingType.ScalaOption)
             }
@@ -850,7 +864,15 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
         printer =>
           val fields = message.fields.collect {
             case field if !field.isInOneof =>
-              val baseTypeName = field.typeCategory(if (field.isEnum) "_root_.scalapb.descriptors.EnumValueDescriptor" else field.baseSingleScalaTypeName)
+              val baseTypeName = field.typeCategory(
+                if (field.isEnum) {
+                  "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor"
+                } else if(field.isMapField) {
+                  s"${field.mapType.keyType}, ${field.mapType.valueType}"
+                } else {
+                  field.baseSingleScalaTypeName
+                }
+              )
               val value = s"__fieldsMap.get(scalaDescriptor.findFieldByNumber(${field.getNumber}).get)"
               val e = if (field.supportsPresence)
                 s"$value.flatMap(_.as[$baseTypeName])"
@@ -872,7 +894,13 @@ class ProtobufGenerator(val params: GeneratorParams) extends DescriptorPimps {
               val elems = oneOf.fields.map {
                 field =>
                   val value = s"__fieldsMap.get(scalaDescriptor.findFieldByNumber(${field.getNumber}).get)"
-                  val typeName = if (field.isEnum) "_root_.scalapb.descriptors.EnumValueDescriptor" else field.baseSingleScalaTypeName
+                  val typeName = if (field.isEnum) {
+                    "_root_.com.google.protobuf.Descriptors.EnumValueDescriptor"
+                  } else if(field.isMapField) {
+                    s"${field.mapType.keyType}, ${field.mapType.valueType}"
+                  } else {
+                    field.baseSingleScalaTypeName
+                  }
                   val e = s"$value.flatMap(_.as[scala.Option[$typeName]])"
                   (transform(field) andThen FunctionApplication(field.oneOfTypeName)).apply(e, EnclosingType.ScalaOption)
               }
