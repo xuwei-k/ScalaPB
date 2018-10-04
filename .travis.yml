@@ -1,7 +1,7 @@
 language: scala
 sudo: required
 dist: trusty
-jdk: oraclejdk9
+jdk: oraclejdk11
 
 stages:
 - name: test
@@ -9,8 +9,6 @@ stages:
   if: (branch = master AND type = push) OR (tag IS present)
 
 scala:
-- 2.10.7
-- 2.11.12
 - 2.12.7
 
 env:
