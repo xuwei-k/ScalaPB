@@ -97,7 +97,7 @@ lazy val runtime = crossProject(JSPlatform, JVMPlatform/*, NativePlatform*/)
     name := "scalapb-runtime",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "fastparse" % "2.1.0",
-      "com.lihaoyi" %%% "utest" % "0.6.6" % "test",
+      "com.lihaoyi" %%% "utest" % "0.6.7" % "test",
       "commons-codec" % "commons-codec" % "1.12" % "test",
       "com.google.protobuf" % "protobuf-java-util" % protobufVersion % "test",
     ),
@@ -122,7 +122,7 @@ lazy val runtime = crossProject(JSPlatform, JVMPlatform/*, NativePlatform*/)
   .dependsOn(lenses)
   .platformsSettings(JSPlatform/*, NativePlatform*/)(
     libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %%% "protobuf-runtime-scala" % "0.7.3"
+      "com.thesamet.scalapb" %%% "protobuf-runtime-scala" % "0.8.0"
     ),
     (unmanagedSourceDirectories in Compile) += baseDirectory.value / ".." / "non-jvm" / "src" / "main" / "scala"
   )
@@ -131,7 +131,7 @@ lazy val runtime = crossProject(JSPlatform, JVMPlatform/*, NativePlatform*/)
     libraryDependencies ++= Seq(
       "com.google.protobuf" % "protobuf-java" % protobufVersion,
       "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
-      "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
+      "org.scalatest" %%% "scalatest" % "3.0.8-RC2" % "test"
     ),
     // Can be removed after JDK 11.0.3 is available on Travis
     Test / javaOptions ++= (
@@ -167,7 +167,7 @@ lazy val grpcRuntime = project.in(file("scalapb-runtime-grpc"))
     libraryDependencies ++= Seq(
       "io.grpc" % "grpc-stub" % grpcVersion,
       "io.grpc" % "grpc-protobuf" % grpcVersion,
-      "org.scalatest" %% "scalatest" % "3.0.7" % "test",
+      "org.scalatest" %% "scalatest" % "3.0.8-RC2" % "test",
       "org.mockito" % "mockito-core" % "2.23.4" % "test"
     ),
     mimaPreviousArtifacts := Set("com.thesamet.scalapb" %% "scalapb-runtime-grpc" % MimaPreviousVersion)
@@ -200,7 +200,7 @@ lazy val compilerPlugin = project.in(file("compiler-plugin"))
     }.taskValue,
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "protoc-bridge" % "0.7.4",
-      "org.scalatest" %% "scalatest" % "3.0.7" % "test",
+      "org.scalatest" %% "scalatest" % "3.0.8-RC2" % "test",
       "com.github.os72" % "protoc-jar" % "3.7.0.1" % "test",
     ),
     mimaPreviousArtifacts := Set("com.thesamet.scalapb" %% "compilerplugin" % MimaPreviousVersion),
@@ -261,7 +261,7 @@ lazy val proptest = project.in(file("proptest"))
         "io.grpc" % "grpc-netty" % grpcVersion % "test",
         "io.grpc" % "grpc-protobuf" % grpcVersion % "test",
         "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
-        "org.scalatest" %% "scalatest" % "3.0.7" % "test"
+        "org.scalatest" %% "scalatest" % "3.0.8-RC2" % "test"
       ),
       scalacOptions in Compile ++= Seq("-Xmax-classfile-name", "128"),
       libraryDependencies += { "org.scala-lang" % "scala-compiler" % scalaVersion.value },
@@ -321,7 +321,7 @@ lazy val lenses = crossProject(JSPlatform, JVMPlatform/*, NativePlatform*/).in(f
     },
     testFrameworks += new TestFramework("utest.runner.Framework"),
     libraryDependencies ++= Seq(
-        "com.lihaoyi" %%% "utest" % "0.6.6" % "test"
+        "com.lihaoyi" %%% "utest" % "0.6.7" % "test"
     ),
     mimaPreviousArtifacts := Set("com.thesamet.scalapb" %% "lenses" % MimaPreviousVersion),
     mimaBinaryIssueFilters ++= {
