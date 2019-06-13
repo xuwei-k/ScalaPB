@@ -10,8 +10,7 @@ fi
 
 # -J-XX below is a workaround for XX:LoopStripMiningIter=0.
 # TODO: remove after JDK>=11.0.3
-sbt -J-XX:LoopStripMiningIter=0 \
-    ++2.12.8 compilerPlugin/publishLocal compilerPluginShaded/publishLocal createVersionFile \
+sbt ++2.12.8 compilerPlugin/publishLocal compilerPluginShaded/publishLocal createVersionFile \
     ++$SCALA_VERSION lensesJVM/publishLocal runtimeJVM/publishLocal grpcRuntime/publishLocal
 cd e2e
 sbt ++$SCALA_VERSION noJava/clean clean noJava/test test
