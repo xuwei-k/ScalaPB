@@ -72,8 +72,8 @@ object Charts {
   }
 
   def makeChart(baseName: String, title: String, showLegend: Boolean) = {
-    val key1 = LineKey(baseName + "Scala", "2.12.10")
-    val key2 = LineKey(baseName + "Scala", "2.13.1")
+    val key1 = LineKey(baseName + "Scala", "2.12.11")
+    val key2 = LineKey(baseName + "Scala", "2.13.3")
     val java = LineKey(baseName + "Java", "java")
 
     val allVersions = (ts(key1).keySet ++ ts(key2).keySet).toVector

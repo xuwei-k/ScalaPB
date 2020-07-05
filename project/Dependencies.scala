@@ -9,7 +9,7 @@ object Dependencies {
     val protobuf                = "3.12.2"
     val utest                   = "0.7.4"
     val fastparse               = "2.3.0"
-    val silencer                = "1.6.0"
+    val silencer                = "1.7.0"
     val collectionCompat        = "2.1.6"
     val coursier                = "2.0.0-RC6-21"
     val mockito                 = "3.2.0"
@@ -23,9 +23,9 @@ object Dependencies {
     val annotationApi           = "1.3.2"
   }
 
-  val Scala212 = "2.12.10"
+  val Scala212 = "2.12.11"
 
-  val Scala213 = "2.13.1"
+  val Scala213 = "2.13.3"
 
   val silencer = Seq(
     sbt.compilerPlugin(

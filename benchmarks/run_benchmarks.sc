@@ -7,9 +7,9 @@ val MODES = Map(
   "fast" -> "-wi 5 -i 5 -f 1 -w 1 -r 1"
 )
 
-val SCALA_212 = "2.12.10"
+val SCALA_212 = "2.12.11"
 
-val SCALA_213 = "2.13.1"
+val SCALA_213 = "2.13.3"
 
 val ALL_SCALA = Seq(SCALA_212, SCALA_213)
 
