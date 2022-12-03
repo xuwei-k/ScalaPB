@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    branches: [master]
-    tags: ["v*"]
 
 jobs:
   publish:
@@ -29,15 +27,6 @@ jobs:
         node-version: '12.x'
     - uses: olafurpg/setup-gpg@v3
       if: startsWith(github.ref, 'refs/tags/v')
-    - name: Publish ${{ github.ref }}
-      run: sbt ci-release
-      env:
-        JAVA_OPTS: -Xmx4G -XX:+UseG1GC
-        JVM_OPTS:  -Xmx4G -XX:+UseG1GC
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
     - name: Update docs
       run: |
         git config --global user.name "ScalaPB Docs"
