@@ -10,7 +10,6 @@ import scalapb.options.Scalapb.FieldOptions
 import scala.jdk.CollectionConverters._
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import protocgen.CodeGenRequest
-import protocgen.CodeGenResponse
 
 // Exceptions that are caught and passed upstreams as errors.
 case class GeneratorException(message: String) extends Exception(message)
@@ -1780,7 +1779,9 @@ object ProtobufGenerator {
   def parseParameters(params: String): Either[String, GeneratorParams] =
     GeneratorParams.fromString(params)
 
-  def handleCodeGeneratorRequest(request: CodeGenRequest): CodeGenResponse = {
+  def handleCodeGeneratorRequest(
+      request: CodeGenRequest
+  ): Either[String, (Seq[CodeGeneratorResponse.File], Set[CodeGeneratorResponse.Feature])] = {
     parseParameters(request.parameter) match {
       case Right(params) =>
         try {
@@ -1794,19 +1795,21 @@ object ProtobufGenerator {
               generator.generateSingleScalaFileForFileDescriptor(file)
             else generator.generateMultipleScalaFilesForFileDescriptor(file)
           }
-          CodeGenResponse.succeed(
-            files,
-            Set(
-              CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL,
-              CodeGeneratorResponse.Feature.FEATURE_SUPPORTS_EDITIONS
+          Right(
+            (
+              files,
+              Set(
+                CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL,
+                CodeGeneratorResponse.Feature.FEATURE_SUPPORTS_EDITIONS
+              )
             )
           )
         } catch {
           case e: GeneratorException =>
-            CodeGenResponse.fail(e.message)
+            Left(e.message)
         }
       case Left(error) =>
-        CodeGenResponse.fail(error)
+        Left(error)
     }
   }
 

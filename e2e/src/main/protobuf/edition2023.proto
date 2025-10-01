@@ -1,0 +1,7 @@
+edition = "2023";
+
+package com.thesamet.proto.e2e;
+
+message Edition2023Test1 {
+  string foo = 1;
+}
